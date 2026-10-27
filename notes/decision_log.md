@@ -15,7 +15,7 @@ One entry per modelling or data choice: the options, the choice, the reason and 
 
 - **Options:** drop it, merge it with Hackney, or keep it and flag it.
 - **Choice:** keep it in every table with `is_city_of_london = true`. Leave it out of rankings and correlations, and say so on the dashboard.
-- **Reason:** about 9,000 residents, so rates are unstable. Its PM2.5 (10.96 µg/m³ in 2024) is the highest in London and would top any ranking.
+- **Reason:** a very small population (15,631 in mid-2025, against 145,734 in Kensington and Chelsea, the next smallest; about 8,000 to 9,000 in 2018 to 2021, which is where the brief's "about 9,000" came from), so rates are unstable. Its PM2.5 was the highest in London every year from 2021 to 2024 (10.96 µg/m³ in 2024), so it would top the recent rankings. Newham was highest in 2018 to 2020.
 - **Extra fact found:** for asthma (90810) and COPD (92302) admissions, Fingertips combines the City with Hackney. The City's value is blank, and Hackney's carries the note "Value for Hackney and City of London combined".
 - **Source:** Fingertips metadata, "Disclosure control" field for 90810 and 92302 (`data/raw/fingertips_metadata.csv`).
 

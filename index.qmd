@@ -50,6 +50,10 @@ boundaries <- sf::st_read(here::here("data", "clean", "london_boundaries.geojson
 fmt_gbp_m <- function(x, digits = 1) paste0("£", fmt_num(x / 1e6, digits), "m")
 fmt_gbp   <- function(x, digits = 0) paste0("£", fmt_num(x, digits))
 city_code <- latest$area_code[latest$is_city_of_london]
+city_population <- results_borough$population[results_borough$is_city_of_london]
+pct <- function(x) paste0(fmt_num(as.numeric(x) * 100, 1), "%")
+who_level     <- refs$value[refs$name == "who_aqg_2021"]
+england_level <- refs$value[refs$name == "england_target_10"]
 base_threshold <- param_n("threshold_nice_guidelines")
 base_horizon   <- param_n("horizon_years")
 
@@ -216,7 +220,8 @@ chart_card(
   source = paste(
     "Source: OHID Fingertips indicator 93867 (Defra modelled PM2.5, population-weighted).",
     "London is the mean of the 33 London areas weighted by each year's ONS mid-year population.",
-    "Reference lines: WHO global air quality guidelines 2021 (5 µg/m³); England's target of 10 µg/m³ is an interim target for December 2030 (Environmental Improvement Plan 2025) and a legal target for the end of 2040 (SI 2023/96).",
+    paste0("Reference lines: WHO global air quality guidelines 2021 (", who_level, " µg/m³); England's target of ", england_level,
+           " µg/m³ is an interim target for December 2030 (Environmental Improvement Plan 2025) and a legal target for the end of 2040 (SI 2023/96)."),
     "England's target is tested at every monitoring station, not on an area average, so the line shows the target level, not compliance."
   )
 )
@@ -260,8 +265,8 @@ chart_card(
   ),
   source = paste(
     "Source: OHID Fingertips indicator 93867. Boundaries: ONS Local Authority Districts (May 2026) BUC,",
-    "contains OS data © Crown copyright and database right 2026. The City of London has the highest value but",
-    "about 9,000 residents, so it is shown but not ranked."
+    "contains OS data © Crown copyright and database right 2026. The City of London has the highest value but only",
+    format(city_population, big.mark = ","), "residents (mid-2025), so it is shown but not ranked."
   )
 )
 ```
@@ -417,7 +422,7 @@ tags$div(
 
 ```{r}
 #| content: valuebox
-#| title: "QALYs gained across London (discounted at 3.5%)"
+#| title: !expr paste0("QALYs gained across London (discounted at ", pct(param("discount_rate_health")), ")")
 list(icon = "heart", color = "light", value = fmt_num(results_london$qaly_gained_disc, 0))
 ```
 
@@ -498,7 +503,14 @@ tags$div(
     fmt_gbp_m(temp_20k$h20), " and ", fmt_gbp_m(temp_20k$h30), " a year over 10, 20 and 30 years at £",
     format(base_threshold, big.mark = ","), " per QALY. Use this view for schemes that need running costs every year."
   )),
-  tags$p("Thresholds: NICE guidelines, which cover public health, state £20,000 per QALY. £25,000 to £35,000 has applied to NICE technology appraisals of medicines since spring 2026 and is shown for comparison only. The societal value comes from Defra's air quality appraisal guidance and is a cost-benefit value, not the NHS's opportunity cost, so it uses Green Book discounting (1.5% for health).")
+  tags$p(paste0(
+    "Thresholds: NICE guidelines, which cover public health, state £", format(base_threshold, big.mark = ","), " per QALY. £",
+    format(param_n("threshold_ta_low"), big.mark = ","), " to £", format(param_n("threshold_ta_high"), big.mark = ","),
+    " has applied to NICE technology appraisals of medicines since spring 2026 and is shown for comparison only. ",
+    "The societal value (£", format(param_n("value_qaly_societal"), big.mark = ","), " per QALY) comes from Defra's air quality appraisal guidance ",
+    "and is a cost-benefit value, not the NHS's opportunity cost, so it uses Green Book discounting (",
+    pct(param("discount_rate_health_scenario")), " for health)."
+  ))
 )
 ```
 
@@ -537,7 +549,8 @@ chart_card(
   source = paste0(
     "Probabilistic analysis: ", format(param_n("psa_draws"), big.mark = ","), " draws of the hazard ratio (log-normal around 1.08). ",
     "Drawn 2.5th and 97.5th percentiles: ", fmt_num(hr_check$drawn[1], 3), " and ", fmt_num(hr_check$drawn[3], 3),
-    " (published interval 1.06 to 1.09). Utilities, life tables and population are held fixed."
+    " (published interval ", fmt_num(hr_check$published[1], 2), " to ", fmt_num(hr_check$published[3], 2),
+    "). Utilities, life tables and population are held fixed."
   )
 )
 ```
@@ -582,7 +595,7 @@ reactable(
 
 **Who gains.** Residents aged `r param("age_min")` and over in mid-`r param("population_year")`, by sex and single year of age, followed to age `r param("age_max")` using England's life table (`r param("life_table_period")`). This closed cohort leaves out people who turn 30 later, so it is conservative; the open cohort is a scenario. Boroughs differ by population size and age structure; a scenario scales death rates by each borough's standardised mortality ratio.
 
-**From life-years to money.** Each extra year of life is weighted by the average EQ-5D-5L score for that age and sex to give QALYs (NICE's preferred value set since August 2026), and discounted at `r as.numeric(param("discount_rate_health")) * 100`% a year (NICE). The break-even present value is discounted QALYs times a cost-effectiveness threshold. Spread evenly over `r param("horizon_years")` years, that gives the break-even annual spend. Costs and health are both discounted from the end of year 1, so the annual figure does not depend on that convention. Death rates are held at 2022-2024 levels throughout (period, not projected, mortality), as in COMEAP's method.
+**From life-years to money.** Each extra year of life is weighted by the average EQ-5D-5L score for that age and sex to give QALYs (NICE's preferred value set since August 2026), and discounted at `r as.numeric(param("discount_rate_health")) * 100`% a year (NICE). The break-even present value is discounted QALYs times a cost-effectiveness threshold. Spread evenly over `r param("horizon_years")` years, that gives the break-even annual spend. Costs and health are both discounted from the end of year 1, so the annual figure does not depend on that convention. Death rates are held at `r param("life_table_period")` levels throughout (period, not projected, mortality): no future fall in death rates is assumed.
 
 **Checks.** The model's life expectancy at 30 is within `r fmt_num(max(abs(model_checks$difference), na.rm = TRUE), 2)` years of ONS for both sexes. Tests confirm that a hazard ratio of 1 gives no gain, a 2 µg/m³ cut gives about twice the gain, and the London total equals the sum of the boroughs.
 :::
@@ -592,7 +605,7 @@ reactable(
 ::: {.card title="Limitations"}
 - **Deaths only, so likely conservative overall.** Illness, children's health and NHS savings are left out. Public Health England (2018) estimated NHS and social care savings from a 1 µg/m³ cut, but its scenario is described inconsistently (one year or sustained), so it is not added. Against that, extra years are valued at average population quality of life, which may be too high for the people with heart and lung disease whose deaths are delayed.
 - **No moving.** Residents are followed for life as if they never leave their borough. London has high migration, so borough figures are best read as the value to current residents of a London-wide cut.
-- **Who is counted.** The base case counts current residents aged 30 and over; COMEAP's own method follows the whole current population. The open-cohort scenario adds people who turn 30 in the next 19 years but not births or newcomers.
+- **Who is counted.** The base case counts current residents aged 30 and over; COMEAP's own method follows the whole current population. The open-cohort scenario adds people who turn 30 in the next `r param_n("open_cohort_entry_years") - 1` years but not births or newcomers.
 - **Whose opportunity cost.** NICE thresholds reflect what the NHS gives up elsewhere. A council spending its own public health grant faces a different trade-off; the societal value shows a wider view.
 - **Linear effect.** The value per µg/m³ is roughly constant for small cuts. Do not scale it up to large cuts without re-running the model.
 - **England death rates** in the base case: inner and outer boroughs differ only in size and age structure unless the SMR scenario is used.

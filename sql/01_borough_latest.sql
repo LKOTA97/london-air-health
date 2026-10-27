@@ -2,7 +2,8 @@
 -- One row per London area (33 rows) with the latest value of each indicator.
 -- "Latest" is the highest year_start each indicator has for London areas,
 -- which differs between indicators (PM2.5 2024, asthma 2024/25, COPD 2023/24).
--- The City of London is kept but not ranked: its population is about 9,000.
+-- The City of London is kept but not ranked: its population is very small
+-- (15,631 in mid-2025, against 145,734 in the next smallest area).
 
 -- Latest year_start for each indicator, looking only at London areas
 WITH latest_period AS (
