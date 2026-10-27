@@ -1,5 +1,7 @@
 # SQL tasks for Lassi: session 1
 
+> **Status, 27 October 2026:** at Lassi's request, an AI coding assistant wrote all three queries (`sql/01_borough_latest.sql`, `sql/02_trends.sql`, `sql/03_deprivation_groups.sql`) and the tests pass. This sheet is kept as practice: try writing each query yourself from the spec below before reading the committed version. `notes/sql_practice.md` has more exercises.
+
 Two queries to write: `sql/01_borough_latest.sql` and `sql/02_trends.sql`. Both run against `data/london_air.duckdb`. Task 3 (`sql/03_deprivation_groups.sql`) comes in session 3.
 
 ## How to run your SQL

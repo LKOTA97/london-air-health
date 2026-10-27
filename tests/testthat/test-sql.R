@@ -94,3 +94,28 @@ test_that("02_trends.sql returns boroughs, a population-weighted London mean and
   eng_pm25 <- pm25[pm25$area_code == "E92000001", ]
   expect_equal(england$pm25[order(england$year)], eng_pm25$value[order(eng_pm25$year_start)])
 })
+
+test_that("03_deprivation_groups.sql splits the 32 boroughs into IMD 2025 thirds", {
+  skip_if_not(file.exists(here::here("sql", "03_deprivation_groups.sql")), "sql/03_deprivation_groups.sql not written yet")
+  out <- run_sql_file("03_deprivation_groups.sql")
+
+  expect_equal(nrow(out), 3)
+  expect_equal(out$imd_third, 1:3)
+  expect_equal(sum(out$n_boroughs), 32)
+  expect_true(all(out$year == 2024))
+
+  # Independent calculation: City of London excluded, thirds by ascending IMD 2025
+  imd  <- indicator_values(94240L)
+  pm25 <- indicator_values(93867L)
+  af   <- indicator_values(93861L)
+  b <- data.frame(area_code = imd$area_code[startsWith(imd$area_code, "E09") & imd$area_code != "E09000001"])
+  b$imd  <- imd$value[match(b$area_code, imd$area_code)]
+  b$pm25 <- pm25$value[pm25$year_start == 2024][match(b$area_code, pm25$area_code[pm25$year_start == 2024])]
+  b$af   <- af$value[af$year_start == 2024][match(b$area_code, af$area_code[af$year_start == 2024])]
+  b$third <- dplyr::ntile(b$imd, 3)
+  expected <- aggregate(cbind(pm25, af) ~ third, data = b, FUN = mean)
+
+  expect_equal(out$n_boroughs, as.vector(table(b$third)))
+  expect_equal(out$mean_pm25, expected$pm25, tolerance = 1e-10)
+  expect_equal(out$mean_attributable_pct, expected$af, tolerance = 1e-10)
+})
