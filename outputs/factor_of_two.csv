@@ -1,0 +1,100 @@
+input,scenario,area_code,area_name,is_city_of_london,health_gain_disc,annual_breakeven
+Horizon for the annual spend,10 years,E09000001,City of London,TRUE,139.35959975746397,335135.7780057926
+Horizon for the annual spend,10 years,E09000002,Barking and Dagenham,FALSE,1944.8157737374822,4676946.177685474
+Horizon for the annual spend,10 years,E09000003,Barnet,FALSE,3845.9996141013085,9248965.088340001
+Horizon for the annual spend,10 years,E09000004,Bexley,FALSE,2478.5673466721855,5960526.56230628
+Horizon for the annual spend,10 years,E09000005,Brent,FALSE,3116.265991908795,7494081.710114923
+Horizon for the annual spend,10 years,E09000006,Bromley,FALSE,3407.219533710124,8193774.747156003
+Horizon for the annual spend,10 years,E09000007,Camden,FALSE,1852.5347595394446,4455026.27017823
+Horizon for the annual spend,10 years,E09000008,Croydon,FALSE,3872.3235181582413,9312269.532968313
+Horizon for the annual spend,10 years,E09000009,Ealing,FALSE,3555.504285570372,8550373.97510706
+Horizon for the annual spend,10 years,E09000010,Enfield,FALSE,3070.4738867505375,7383959.602879797
+Horizon for the annual spend,10 years,E09000011,Greenwich,FALSE,2728.6007737405816,6561813.787971792
+Horizon for the annual spend,10 years,E09000012,Hackney,FALSE,2241.1048843898748,5389470.336666604
+Horizon for the annual spend,10 years,E09000013,Hammersmith and Fulham,FALSE,1652.2683379062078,3973420.100676467
+Horizon for the annual spend,10 years,E09000014,Haringey,FALSE,2501.3022533813473,6015200.087927223
+Horizon for the annual spend,10 years,E09000015,Harrow,FALSE,2554.25054229323,6142531.581627275
+Horizon for the annual spend,10 years,E09000016,Havering,FALSE,2679.851167055855,6444579.400156414
+Horizon for the annual spend,10 years,E09000017,Hillingdon,FALSE,2965.8080910033477,7132256.433888376
+Horizon for the annual spend,10 years,E09000018,Hounslow,FALSE,2777.750624337427,6680010.693296643
+Horizon for the annual spend,10 years,E09000019,Islington,FALSE,1900.588211893721,4570586.527014803
+Horizon for the annual spend,10 years,E09000020,Kensington and Chelsea,FALSE,1423.3098474352466,3422814.4590948387
+Horizon for the annual spend,10 years,E09000021,Kingston upon Thames,FALSE,1656.2451401000026,3982983.6233868664
+Horizon for the annual spend,10 years,E09000022,Lambeth,FALSE,2731.8711549685477,6569678.490217761
+Horizon for the annual spend,10 years,E09000023,Lewisham,FALSE,2806.077446523211,6748131.810235744
+Horizon for the annual spend,10 years,E09000024,Merton,FALSE,2097.6189708779866,5044411.486459171
+Horizon for the annual spend,10 years,E09000025,Newham,FALSE,2980.7038616214227,7168078.190579501
+Horizon for the annual spend,10 years,E09000026,Redbridge,FALSE,2843.9320250278106,6839165.536224476
+Horizon for the annual spend,10 years,E09000027,Richmond upon Thames,FALSE,2011.5149007186367,4837346.06296097
+Horizon for the annual spend,10 years,E09000028,Southwark,FALSE,2725.030297921356,6553227.410042969
+Horizon for the annual spend,10 years,E09000029,Sutton,FALSE,2099.3556121774827,5048587.808966099
+Horizon for the annual spend,10 years,E09000030,Tower Hamlets,FALSE,2499.529314911956,6010936.476993136
+Horizon for the annual spend,10 years,E09000031,Waltham Forest,FALSE,2652.780326415443,6379478.701997949
+Horizon for the annual spend,10 years,E09000032,Wandsworth,FALSE,2906.975344328496,6990773.835176778
+Horizon for the annual spend,10 years,E09000033,Westminster,FALSE,1950.6345315270382,4690939.285603578
+Horizon for the annual spend,30 years,E09000001,City of London,TRUE,139.35959975746397,151543.34022181772
+Horizon for the annual spend,30 years,E09000002,Barking and Dagenham,FALSE,1944.8157737374822,2114844.4669845705
+Horizon for the annual spend,30 years,E09000003,Barnet,FALSE,3845.9996141013085,4182242.4076064997
+Horizon for the annual spend,30 years,E09000004,Bexley,FALSE,2478.5673466721855,2695260.142344903
+Horizon for the annual spend,30 years,E09000005,Brent,FALSE,3116.265991908795,3388710.632460191
+Horizon for the annual spend,30 years,E09000006,Bromley,FALSE,3407.219533710124,3705101.2625328787
+Horizon for the annual spend,30 years,E09000007,Camden,FALSE,1852.5347595394446,2014495.6345039534
+Horizon for the annual spend,30 years,E09000008,Croydon,FALSE,3872.3235181582413,4210867.72194013
+Horizon for the annual spend,30 years,E09000009,Ealing,FALSE,3555.504285570372,3866350.0508472403
+Horizon for the annual spend,30 years,E09000010,Enfield,FALSE,3070.4738867505375,3338915.0777689586
+Horizon for the annual spend,30 years,E09000011,Greenwich,FALSE,2728.6007737405816,2967153.149866429
+Horizon for the annual spend,30 years,E09000012,Hackney,FALSE,2241.1048843898748,2437037.136723567
+Horizon for the annual spend,30 years,E09000013,Hammersmith and Fulham,FALSE,1652.2683379062078,1796720.594094897
+Horizon for the annual spend,30 years,E09000014,Haringey,FALSE,2501.3022533813473,2719982.6853798563
+Horizon for the annual spend,30 years,E09000015,Harrow,FALSE,2554.25054229323,2777560.0648693293
+Horizon for the annual spend,30 years,E09000016,Havering,FALSE,2679.851167055855,2914141.529250694
+Horizon for the annual spend,30 years,E09000017,Hillingdon,FALSE,2965.8080910033477,3225098.703998452
+Horizon for the annual spend,30 years,E09000018,Hounslow,FALSE,2777.750624337427,3020600.006371557
+Horizon for the annual spend,30 years,E09000019,Islington,FALSE,1900.588211893721,2066750.2383606709
+Horizon for the annual spend,30 years,E09000020,Kensington and Chelsea,FALSE,1423.3098474352466,1547745.0339002623
+Horizon for the annual spend,30 years,E09000021,Kingston upon Thames,FALSE,1656.2451401000026,1801045.0747112161
+Horizon for the annual spend,30 years,E09000022,Lambeth,FALSE,2731.8711549685477,2970709.449510998
+Horizon for the annual spend,30 years,E09000023,Lewisham,FALSE,2806.077446523211,3051403.347220513
+Horizon for the annual spend,30 years,E09000024,Merton,FALSE,2097.6189708779866,2281006.733032588
+Horizon for the annual spend,30 years,E09000025,Newham,FALSE,2980.7038616214227,3241296.7616749215
+Horizon for the annual spend,30 years,E09000026,Redbridge,FALSE,2843.9320250278106,3092567.4240351696
+Horizon for the annual spend,30 years,E09000027,Richmond upon Thames,FALSE,2011.5149007186367,2187374.8740049303
+Horizon for the annual spend,30 years,E09000028,Southwark,FALSE,2725.030297921356,2963270.5193711612
+Horizon for the annual spend,30 years,E09000029,Sutton,FALSE,2099.3556121774827,2282895.2030321485
+Horizon for the annual spend,30 years,E09000030,Tower Hamlets,FALSE,2499.529314911956,2718054.74487108
+Horizon for the annual spend,30 years,E09000031,Waltham Forest,FALSE,2652.780326415443,2884703.976183663
+Horizon for the annual spend,30 years,E09000032,Wandsworth,FALSE,2906.975344328496,3161122.408421774
+Horizon for the annual spend,30 years,E09000033,Westminster,FALSE,1950.6345315270382,2121171.939170955
+Horizon for the annual spend,Base case,E09000001,City of London,TRUE,139.35959975746397,196109.82997973426
+Horizon for the annual spend,Base case,E09000002,Barking and Dagenham,FALSE,1944.8157737374822,2736786.639695667
+Horizon for the annual spend,Base case,E09000003,Barnet,FALSE,3845.9996141013085,5412173.483105421
+Horizon for the annual spend,Base case,E09000004,Bexley,FALSE,2478.5673466721855,3487893.34782206
+Horizon for the annual spend,Base case,E09000005,Brent,FALSE,3116.265991908795,4385276.614660556
+Horizon for the annual spend,Base case,E09000006,Bromley,FALSE,3407.219533710124,4794712.70456009
+Horizon for the annual spend,Base case,E09000007,Camden,FALSE,1852.5347595394446,2606926.8091835943
+Horizon for the annual spend,Base case,E09000008,Croydon,FALSE,3872.3235181582413,5449217.047796998
+Horizon for the annual spend,Base case,E09000009,Ealing,FALSE,3555.504285570372,5003382.200787908
+Horizon for the annual spend,Base case,E09000010,Enfield,FALSE,3070.4738867505375,4320836.9781186255
+Horizon for the annual spend,Base case,E09000011,Greenwich,FALSE,2728.6007737405816,3839745.7710277117
+Horizon for the annual spend,Base case,E09000012,Hackney,FALSE,2241.1048843898748,3153731.0569874174
+Horizon for the annual spend,Base case,E09000013,Hammersmith and Fulham,FALSE,1652.2683379062078,2325107.587791633
+Horizon for the annual spend,Base case,E09000014,Haringey,FALSE,2501.3022533813473,3519886.398154425
+Horizon for the annual spend,Base case,E09000015,Harrow,FALSE,2554.25054229323,3594396.370587602
+Horizon for the annual spend,Base case,E09000016,Havering,FALSE,2679.851167055855,3771144.2746459837
+Horizon for the annual spend,Base case,E09000017,Hillingdon,FALSE,2965.8080910033477,4173549.016296134
+Horizon for the annual spend,Base case,E09000018,Hounslow,FALSE,2777.750624337427,3908910.4992620894
+Horizon for the annual spend,Base case,E09000019,Islington,FALSE,1900.588211893721,2674548.6621993687
+Horizon for the annual spend,Base case,E09000020,Kensington and Chelsea,FALSE,1423.3098474352466,2002912.2692285718
+Horizon for the annual spend,Base case,E09000021,Kingston upon Thames,FALSE,1656.2451401000026,2330703.8294818033
+Horizon for the annual spend,Base case,E09000022,Lambeth,FALSE,2731.8711549685477,3844347.9219215256
+Horizon for the annual spend,Base case,E09000023,Lewisham,FALSE,2806.077446523211,3948772.6134787514
+Horizon for the annual spend,Base case,E09000024,Merton,FALSE,2097.6189708779866,2951814.5894295657
+Horizon for the annual spend,Base case,E09000025,Newham,FALSE,2980.7038616214227,4194510.665500148
+Horizon for the annual spend,Base case,E09000026,Redbridge,FALSE,2843.9320250278106,4002042.3915737756
+Horizon for the annual spend,Base case,E09000027,Richmond upon Thames,FALSE,2011.5149007186367,2830647.087593304
+Horizon for the annual spend,Base case,E09000028,Southwark,FALSE,2725.030297921356,3834721.320562342
+Horizon for the annual spend,Base case,E09000029,Sutton,FALSE,2099.3556121774827,2954258.4284659335
+Horizon for the annual spend,Base case,E09000030,Tower Hamlets,FALSE,2499.529314911956,3517391.4809588967
+Horizon for the annual spend,Base case,E09000031,Waltham Forest,FALSE,2652.780326415443,3733049.6047083624
+Horizon for the annual spend,Base case,E09000032,Wandsworth,FALSE,2906.975344328496,4090758.3081732225
+Horizon for the annual spend,Base case,E09000033,Westminster,FALSE,1950.6345315270382,2744974.920967923
