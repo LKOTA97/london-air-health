@@ -55,6 +55,10 @@ base_settings <- function(params) {
     mortality        = "england",
     utility_version  = params$utility_version,
     outcome          = "qaly",
+    # Years the cut lasts. Inf is the base case: a permanent cut. A finite
+    # value makes the cut end after that many years, with the benefit fading
+    # on the same lag (used for the "cut lasts only while it is paid for" view).
+    cut_years        = Inf,
     age_min          = param_num(params, "age_min"),
     age_max          = param_num(params, "age_max"),
     population_year  = param_num(params, "population_year"),
@@ -116,17 +120,25 @@ split_90_plus <- function(population, life_table, age_max) {
 # Cumulative share of the full effect in force in calendar year t (t = 1 is
 # the first year of the cut): 30% in year 1, +12.5% a year in years 2 to 5,
 # +1.333% a year in years 6 to 20, 100% from year 20.
-lag_share <- function(t, params, lag = TRUE) {
-  if (!lag) return(rep(1, length(t)))
-  y1   <- param_num(params, "lag_share_year1")
-  y2_5 <- param_num(params, "lag_share_years2_5")
-  y6_20 <- param_num(params, "lag_share_years6_20")
-  share <- ifelse(
-    t <= 1, y1,
-    ifelse(t <= 5, y1 + y2_5 * (t - 1) / 4,
-           ifelse(t <= 20, y1 + y2_5 + y6_20 * (t - 5) / 15, 1))
-  )
-  pmin(share, 1)
+# If the cut ends after cut_years, the benefit fades on the same lag: the
+# US EPA lag is a response to each year's change, so ending the cut is a
+# second change of the opposite sign, and the share is lag(t) - lag(t - cut_years).
+lag_share <- function(t, params, lag = TRUE, cut_years = Inf) {
+  full <- function(t) {
+    if (!lag) return(ifelse(t >= 1, 1, 0))
+    y1    <- param_num(params, "lag_share_year1")
+    y2_5  <- param_num(params, "lag_share_years2_5")
+    y6_20 <- param_num(params, "lag_share_years6_20")
+    share <- ifelse(
+      t < 1, 0,
+      ifelse(t <= 1, y1,
+             ifelse(t <= 5, y1 + y2_5 * (t - 1) / 4,
+                    ifelse(t <= 20, y1 + y2_5 + y6_20 * (t - 5) / 15, 1)))
+    )
+    pmin(share, 1)
+  }
+  if (is.infinite(cut_years)) return(full(t))
+  full(t) - full(t - cut_years)
 }
 
 # Multiplier on the all-cause hazard at the full effect: about 0.9923 for
@@ -152,7 +164,7 @@ cohort_gains <- function(entry_age, entry_year, mx_by_age, u_by_age, settings, p
   year     <- outer(entry_year, j - 1, "+")
 
   mx_base <- matrix(mx_by_age[as.character(age_used)], n, n_years) * mx_scale
-  share   <- matrix(lag_share(as.vector(year), params, settings$lag), n, n_years)
+  share   <- matrix(lag_share(as.vector(year), params, settings$lag, settings$cut_years), n, n_years)
   mx_cut  <- mx_base * (1 - share * (1 - hazard_multiplier(settings$hr, settings$delta)))
 
   # Cumulative sum along each row as a matrix product with an upper triangle of ones
@@ -205,7 +217,8 @@ person_gains <- function(sex, inputs, settings, params, mx_scale = 1) {
 
   if (settings$cohort != "open") return(mutate(closed, sex = sex))
 
-  entry_years <- 2:settings$open_entry_years
+  stopifnot(settings$open_entry_years >= 2)
+  entry_years <- seq(2, settings$open_entry_years)
   entrants <- cohort_gains(
     entry_age = rep(settings$age_min, length(entry_years)), entry_year = entry_years,
     mx_by_age, u_by_age, settings, params, mx_scale
@@ -233,6 +246,10 @@ borough_gains <- function(inputs, settings, params) {
       inner_join(per_person, by = c("sex", "age" = "baseline_age")) |>
       group_by(area_code)
   } else if (settings$mortality == "smr") {
+    stopifnot(
+      !anyDuplicated(inputs$smr$area_code), !anyNA(inputs$smr$smr),
+      setequal(inputs$smr$area_code, inputs$areas$area_code)
+    )
     totals <- inputs$smr |>
       mutate(per_person = map(smr, \(x) gains_for(x / 100))) |>
       select(area_code, per_person) |>

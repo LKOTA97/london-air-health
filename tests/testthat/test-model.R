@@ -83,3 +83,30 @@ test_that("break-even annual spend is the present value divided by the annuity f
   # The annual figure falls as the horizon lengthens
   expect_gt(breakeven_annual(100, 20000, 10, 0.035), breakeven_annual(100, 20000, 30, 0.035))
 })
+
+test_that("saved results have no missing values and 30+ populations add up", {
+  boroughs <- readr::read_csv(here::here("outputs", "results_borough.csv"), show_col_types = FALSE)
+  total    <- readr::read_csv(here::here("outputs", "results_london.csv"), show_col_types = FALSE)
+  expect_false(anyNA(boroughs))
+  expect_false(anyNA(total))
+  pop30 <- sum(inputs$population$population[inputs$population$age >= 30])
+  expect_equal(total$population_30plus, pop30)
+  expect_true(all(boroughs$population_30plus < boroughs$population))
+})
+
+test_that("a cut that ends fades on the same lag and gains less than a permanent cut", {
+  expect_equal(lag_share(c(1, 20, 21, 22, 40), params, cut_years = 20), c(0.30, 1, 0.70, 0.575, 0))
+  expect_equal(lag_share(c(1, 20, 21), params, lag = FALSE, cut_years = 20), c(1, 1, 0))
+  temporary <- borough_gains(inputs, with_settings(cut_years = 20), params)
+  expect_lt(london(temporary), london(base))
+  expect_equal(london(borough_gains(inputs, with_settings(cut_years = Inf), params)), london(base))
+})
+
+test_that("the societal value uses Green Book discounting and the NICE thresholds do not", {
+  b <- readr::read_csv(here::here("outputs", "breakeven.csv"), show_col_types = FALSE)
+  london_rows <- b[b$area_code == "LONDON" & b$horizon == 20, ]
+  nice <- london_rows$health_gain_disc[london_rows$threshold_name == "nice_guidelines"]
+  societal <- london_rows$health_gain_disc[london_rows$threshold_name == "societal"]
+  expect_equal(nice, london(base))
+  expect_gt(societal, nice)
+})

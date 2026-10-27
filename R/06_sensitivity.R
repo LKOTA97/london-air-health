@@ -33,13 +33,14 @@ scenarios <- tribble(
   "Hazard ratio",                  "HR 1.06 (lower 95% limit)",                    list(hr = param_bound(params, "hr_per_10ugm3", "low")),
   "Hazard ratio",                  "HR 1.09 (upper 95% limit)",                    list(hr = param_bound(params, "hr_per_10ugm3", "high")),
   "Cessation lag",                 "No lag (full effect from year 1)",             list(lag = FALSE),
-  "Discount rates",                "1.5% for health, 3.5% for costs",              list(r_health = param_num(params, "discount_rate_health_scenario")),
-  "Discount rates",                "3.0% for health and costs",                    list(r_health = param_num(params, "discount_rate_scenario_review"),
+  "Discount rates",                "1.5% for costs and health (NICE PMG20)",       list(r_health = param_num(params, "discount_rate_scenario_nice"),
+                                                                                         r_cost   = param_num(params, "discount_rate_scenario_nice")),
+  "Discount rates",                "1.5% for health, 3.5% for costs (Green Book)", list(r_health = param_num(params, "discount_rate_health_scenario")),
+  "Discount rates",                "3.0% for costs and health (Discount Rate Review)", list(r_health = param_num(params, "discount_rate_scenario_review"),
                                                                                          r_cost   = param_num(params, "discount_rate_scenario_review")),
-  "Cohort",                        "Open cohort (adds people turning 30)",         list(cohort = "open"),
-  "Health outcome",                "Life-years instead of QALYs",                  list(outcome = "ly"),
+  "Cohort",                        "Open cohort (adds residents turning 30 in years 2 to 20)", list(cohort = "open"),
+  "Health outcome",                "Life-years, not quality-weighted",             list(outcome = "ly"),
   "Baseline mortality",            "Borough SMR instead of England rates",         list(mortality = "smr"),
-  "Utility norms",                 "EQ-5D-3L (HSE 2014) instead of EQ-5D-5L",      list(utility_version = "EQ-5D-3L"),
   "Horizon for the annual spend",  "10 years",                                     list(horizon = param_bound(params, "horizon_years", "low")),
   "Horizon for the annual spend",  "30 years",                                     list(horizon = param_bound(params, "horizon_years", "high"))
 )
@@ -97,6 +98,20 @@ across_flagged <- scenarios |>
   select(-changes) |>
   unnest(result)
 write_csv(across_flagged, file.path(paths$outputs, "factor_of_two.csv"))
+
+# Comparisons that are not uncertainty around the base case, kept out of the
+# tornado: the pre-2026 NICE utility method, and the view in which the cut
+# lasts only while it is paid for.
+comparisons <- tribble(
+  ~comparison,                                                     ~changes,
+  "EQ-5D-3L norms (NICE DSU 2022, pre-2026 NICE method)",          list(utility_version = "EQ-5D-3L"),
+  "Cut lasts only while it is paid for (20 years), then fades",    list(cut_years = settings$horizon)
+) |>
+  mutate(result = map(changes, \(ch) london_result(modifyList(settings, ch)))) |>
+  select(-changes) |>
+  unnest(result) |>
+  mutate(base_annual = base$annual_breakeven, ratio_to_base = annual_breakeven / base_annual)
+write_csv(comparisons, file.path(paths$outputs, "comparisons.csv"))
 
 # Probabilistic sensitivity analysis ----------------------------------------------------
 # Only the hazard ratio is drawn: log(HR) ~ Normal(log(1.08), se). The utility

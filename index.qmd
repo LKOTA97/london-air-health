@@ -17,68 +17,168 @@ format:
 source(here::here("R/dashboard_helpers.R"))
 library(reactable)
 
+# Descriptive results: the project's SQL queries, run directly against DuckDB
 con <- DBI::dbConnect(duckdb::duckdb(
   dbdir = here::here("data", "london_air.duckdb"), read_only = TRUE, shared_home = FALSE
 ))
-
-# The dashboard runs the project's SQL queries directly. A query that has not
-# been written yet returns NULL and its cards show a note instead.
-run_sql <- function(file) {
-  path <- here::here("sql", file)
-  if (file.exists(path)) DBI::dbGetQuery(con, readr::read_file(path)) else NULL
-}
-
-trends <- run_sql("02_trends.sql")
-latest <- run_sql("01_borough_latest.sql")
+run_sql <- function(file) DBI::dbGetQuery(con, readr::read_file(here::here("sql", file)))
+latest      <- run_sql("01_borough_latest.sql")
+trends      <- run_sql("02_trends.sql")
+deprivation <- run_sql("03_deprivation_groups.sql")
 DBI::dbDisconnect(con, shutdown = TRUE)
 
-# Reference lines for the trend chart, each with its source (verified values only)
-refs_path <- here::here("data", "reference", "air_quality_targets.csv")
-refs <- if (file.exists(refs_path)) {
-  readr::read_csv(refs_path, show_col_types = FALSE) |> filter(show_on_trend_chart)
+# Model results: files written by R/05_model.R and R/06_sensitivity.R
+out <- function(file) readr::read_csv(here::here("outputs", file), show_col_types = FALSE)
+results_borough <- out("results_borough.csv")
+results_london  <- out("results_london.csv")
+breakeven       <- out("breakeven.csv")
+temporary_cut   <- out("breakeven_temporary_cut.csv")
+comparisons     <- out("comparisons.csv")
+tornado         <- out("tornado.csv")
+psa_summary     <- out("psa_summary.csv")
+acceptability   <- out("acceptability.csv")
+hr_check        <- out("psa_hr_check.csv")
+model_checks    <- out("model_checks.csv")
+params_table    <- readr::read_csv(here::here("model", "parameters.csv"), col_types = readr::cols(.default = "c"))
+param <- function(name) params_table$value[params_table$name == name]
+param_n <- function(name) as.numeric(param(name))
+
+refs <- readr::read_csv(here::here("data", "reference", "air_quality_targets.csv"), show_col_types = FALSE) |>
+  filter(show_on_trend_chart)
+boundaries <- sf::st_read(here::here("data", "clean", "london_boundaries.geojson"), quiet = TRUE)
+
+fmt_gbp_m <- function(x, digits = 1) paste0("£", fmt_num(x / 1e6, digits), "m")
+fmt_gbp   <- function(x, digits = 0) paste0("£", fmt_num(x, digits))
+city_code <- latest$area_code[latest$is_city_of_london]
+base_threshold <- param_n("threshold_nice_guidelines")
+base_horizon   <- param_n("horizon_years")
+
+# Overview ---------------------------------------------------------------------
+year_first <- min(trends$year)
+year_last  <- max(trends$year)
+pick <- function(group, yr, col) trends[[col]][trends$area_group == group & trends$year == yr]
+london_pm25_first <- pick("London", year_first, "pm25")
+london_pm25_last  <- pick("London", year_last, "pm25")
+england_pm25_last <- pick("England", year_last, "pm25")
+london_af_last    <- pick("London", year_last, "attributable_pct")
+england_af_last   <- pick("England", year_last, "attributable_pct")
+trend_long <- trends |>
+  filter(area_group %in% c("London", "England")) |>
+  transmute(year, series = area_group, value = pm25)
+trend_title <- sprintf(
+  "London's PM2.5 %s from %s µg/m³ in %d to %s in %d, %s England's %s",
+  if (london_pm25_last < london_pm25_first) "fell" else "rose",
+  fmt_num(london_pm25_first), year_first, fmt_num(london_pm25_last), year_last,
+  if (london_pm25_last > england_pm25_last) "still above" else "below",
+  fmt_num(england_pm25_last)
+)
+trend_alt <- paste0(
+  "Line chart of annual mean PM2.5 from ", year_first, " to ", year_last, ". ",
+  "London (population-weighted) goes from ", fmt_ugm3(london_pm25_first), " to ", fmt_ugm3(london_pm25_last), "; ",
+  "England goes from ", fmt_ugm3(pick("England", year_first, "pm25")), " to ", fmt_ugm3(england_pm25_last), ". ",
+  "Dashed reference lines: ", paste(refs$description, collapse = "; "), "."
+)
+
+# Boroughs ---------------------------------------------------------------------
+ranked  <- latest |> filter(!is_city_of_london)
+lowest  <- ranked |> slice_min(pm25, n = 1)
+highest <- ranked |> slice_max(pm25, n = 1)
+af_low  <- ranked |> slice_min(attributable_pct, n = 1)
+af_high <- ranked |> slice_max(attributable_pct, n = 1)
+map_title <- sprintf(
+  "In %d PM2.5 was highest in %s (%s µg/m³) and lowest in %s (%s µg/m³)",
+  highest$pm25_year, highest$area_name, fmt_num(highest$pm25), lowest$area_name, fmt_num(lowest$pm25)
+)
+bar_title <- sprintf(
+  "The share of deaths at 30+ attributable to PM2.5 ranged from %s in %s to %s in %s (%d)",
+  fmt_pct(af_low$attributable_pct), af_low$area_name, fmt_pct(af_high$attributable_pct), af_high$area_name,
+  af_high$pm25_year
+)
+
+# Deprivation and admissions (City of London left out of correlations) -------------
+strength <- function(r) {
+  a <- abs(r)
+  if (a < 0.1) "no clear" else if (a < 0.3) "weak" else if (a < 0.5) "moderate" else "strong"
+}
+association <- function(r) {
+  if (abs(r) < 0.1) "no clear association" else paste(strength(r), if (r > 0) "positive" else "negative", "association")
+}
+imd_r    <- cor(ranked$imd_score, ranked$pm25)
+asthma_r <- cor(ranked$asthma_u19_rate, ranked$pm25)
+copd_r   <- cor(ranked$copd_rate, ranked$pm25)
+deprivation_title <- sprintf(
+  "More deprived boroughs tended to have %s PM2.5 in %d (r = %s, %s, %d boroughs)",
+  if (imd_r > 0) "higher" else "lower", highest$pm25_year, fmt_num(imd_r, 2), strength(imd_r), nrow(ranked)
+)
+thirds_title <- sprintf(
+  "Mean PM2.5 was %s µg/m³ in the least deprived third of boroughs and %s in the most deprived third",
+  fmt_num(deprivation$mean_pm25[deprivation$imd_third == 1]),
+  fmt_num(deprivation$mean_pm25[deprivation$imd_third == 3])
+)
+asthma_title <- sprintf(
+  "Asthma admissions under 19 (%s) showed %s with PM2.5 (r = %s)",
+  ranked$asthma_u19_period[1], association(asthma_r), fmt_num(asthma_r, 2)
+)
+copd_title <- sprintf(
+  "COPD admissions 35+ (%s) showed a %s with PM2.5 (r = %s)",
+  ranked$copd_period[1], association(copd_r), fmt_num(copd_r, 2)
+)
+
+# Value of a 1 ug/m3 cut --------------------------------------------------------
+psa_london <- psa_summary |> filter(area_code == "LONDON")
+london_horizons <- breakeven |>
+  filter(area_code == "LONDON") |>
+  select(threshold_label, threshold, horizon, annual) |>
+  tidyr::pivot_wider(names_from = horizon, values_from = annual, names_prefix = "h") |>
+  arrange(threshold)
+london_temporary <- temporary_cut |>
+  filter(area_code == "LONDON", threshold_name %in% c("nice_guidelines", "nice_previous_upper")) |>
+  select(threshold_label, threshold, horizon, annual) |>
+  tidyr::pivot_wider(names_from = horizon, values_from = annual, names_prefix = "h") |>
+  arrange(threshold)
+horizon_table <- bind_rows(
+  mutate(london_horizons, view = "Spending buys a lasting cut"),
+  mutate(london_temporary, view = "Cut lasts only while paid for")
+) |>
+  relocate(view)
+temp_20k <- london_temporary |> filter(threshold == base_threshold)
+comparison_3l <- comparisons |> filter(grepl("EQ-5D-3L", comparison))
+top_input <- tornado |> slice_max(high_value - low_value, n = 1)
+tornado_title <- sprintf(
+  "%s moves London's break-even spend most: from %s to %s a year",
+  top_input$input, fmt_gbp_m(top_input$low_value), fmt_gbp_m(top_input$high_value)
+)
+accept_20k <- acceptability |> filter(threshold == base_threshold)
+cost_95 <- max(accept_20k$annual_cost_per_resident[accept_20k$prob_cost_effective >= 0.95])
+cost_50 <- max(accept_20k$annual_cost_per_resident[accept_20k$prob_cost_effective >= 0.50])
+accept_title <- sprintf(
+  "At £%s per QALY, a scheme costing up to £%s per resident a year is cost-effective in at least 95%% of draws",
+  format(base_threshold, big.mark = ","), fmt_num(cost_95, 2)
+)
+top_gain  <- results_borough$area_name[which.max(results_borough$qaly_gained_disc)]
+top_30plus <- results_borough$area_name[which.max(results_borough$population_30plus)]
+value_table_title <- if (top_gain == top_30plus) {
+  paste(top_gain, "gains most because it has the most residents aged 30 and over")
 } else {
-  tibble(value = numeric(), label = character())
+  paste(top_gain, "gains most; gains follow the number of residents aged 30 and over")
 }
-
-waiting <- function(file) {
-  tags$p(class = "placeholder-note", paste0("Waiting for sql/", file, "."))
-}
-
-if (!is.null(trends)) {
-  year_first <- min(trends$year)
-  year_last  <- max(trends$year)
-  pick <- function(group, yr, col) trends[[col]][trends$area_group == group & trends$year == yr]
-
-  london_pm25_first <- pick("London", year_first, "pm25")
-  london_pm25_last  <- pick("London", year_last, "pm25")
-  england_pm25_last <- pick("England", year_last, "pm25")
-  london_af_last    <- pick("London", year_last, "attributable_pct")
-  england_af_last   <- pick("England", year_last, "attributable_pct")
-
-  trend_long <- trends |>
-    filter(area_group %in% c("London", "England")) |>
-    transmute(year, series = area_group, value = pm25)
-
-  trend_title <- sprintf(
-    "London's PM2.5 %s from %s µg/m³ in %d to %s in %d, %s England's %s",
-    if (london_pm25_last < london_pm25_first) "fell" else "rose",
-    fmt_num(london_pm25_first), year_first, fmt_num(london_pm25_last), year_last,
-    if (london_pm25_last > england_pm25_last) "still above" else "below",
-    fmt_num(england_pm25_last)
-  )
-  trend_alt <- paste0(
-    "Line chart of annual mean PM2.5 from ", year_first, " to ", year_last, ". ",
-    "London (population-weighted) goes from ", fmt_ugm3(london_pm25_first), " to ", fmt_ugm3(london_pm25_last), "; ",
-    "England goes from ", fmt_ugm3(pick("England", year_first, "pm25")), " to ", fmt_ugm3(england_pm25_last), ".",
-    if (nrow(refs) > 0) paste0(" Dashed reference lines: ", paste(refs$description, collapse = "; "), ".") else ""
-  )
-}
-
-if (!is.null(latest)) {
-  ranked <- latest |> filter(!is_city_of_london)
-  lowest  <- ranked |> slice_min(pm25, n = 1)
-  highest <- ranked |> slice_max(pm25, n = 1)
-}
+borough_value <- results_borough |>
+  select(area_code, area_name, is_city_of_london, qaly_gained_disc, population) |>
+  left_join(
+    breakeven |>
+      filter(threshold_name %in% c("nice_guidelines", "nice_previous_upper")) |>
+      mutate(col = paste0(threshold_name, "_h", horizon)) |>
+      select(area_code, col, annual) |>
+      tidyr::pivot_wider(names_from = col, values_from = annual),
+    by = "area_code"
+  ) |>
+  left_join(select(psa_summary, area_code, per_resident_median, per_resident_low, per_resident_high), by = "area_code") |>
+  mutate(
+    per_resident = nice_guidelines_h20 / population,
+    psa_interval = paste0(fmt_gbp(per_resident_low, 2), " to ", fmt_gbp(per_resident_high, 2)),
+    area_name = ifelse(is_city_of_london, paste0(area_name, " (small population)"), area_name)
+  ) |>
+  arrange(desc(qaly_gained_disc))
 ```
 
 # Overview
@@ -87,32 +187,21 @@ if (!is.null(latest)) {
 
 ```{r}
 #| content: valuebox
-#| title: !expr if (!is.null(trends)) paste0("London PM2.5 in ", year_last, " (England ", fmt_ugm3(england_pm25_last), ")") else "London PM2.5"
-list(
-  icon = "wind",
-  color = "light",
-  value = if (!is.null(trends)) fmt_ugm3(london_pm25_last) else "Waiting for sql/02_trends.sql"
-)
+#| title: !expr paste0("London PM2.5 in ", year_last, " (England ", fmt_ugm3(england_pm25_last), ")")
+list(icon = "wind", color = "light", value = fmt_ugm3(london_pm25_last))
 ```
 
 ```{r}
 #| content: valuebox
-#| title: !expr if (!is.null(trends)) paste0("Deaths at 30+ attributable to PM2.5, ", year_last, " (England ", fmt_pct(england_af_last), ")") else "Deaths attributable to PM2.5"
-list(
-  icon = "heart-pulse",
-  color = "light",
-  value = if (!is.null(trends)) fmt_pct(london_af_last) else "Waiting for sql/02_trends.sql"
-)
+#| title: !expr paste0("Deaths at 30+ attributable to PM2.5, ", year_last, " (England ", fmt_pct(england_af_last), ")")
+list(icon = "heart-pulse", color = "light", value = fmt_pct(london_af_last))
 ```
 
 ```{r}
 #| content: valuebox
-#| title: !expr if (!is.null(latest)) paste0("PM2.5 range across the 32 boroughs, ", lowest$pm25_year, ", µg/m³ (City of London excluded)") else "Range across boroughs"
-list(
-  icon = "arrows-expand",
-  color = "light",
-  value = if (!is.null(latest)) paste0(fmt_num(lowest$pm25), " to ", fmt_num(highest$pm25)) else "Waiting for sql/01_borough_latest.sql"
-)
+#| title: !expr paste0("A sustained 1 µg/m³ cut is worth, at £", format(base_threshold, big.mark = ","), " per QALY over ", base_horizon, " years")
+list(icon = "piggy-bank", color = "light",
+     value = paste0(fmt_gbp_m(results_london$annual_breakeven), " a year"))
 ```
 
 ## Row {height="560px"}
@@ -120,81 +209,415 @@ list(
 ### Column {width=68%}
 
 ```{r}
-#| title: !expr if (!is.null(trends)) trend_title else "PM2.5 over time"
-if (!is.null(trends)) {
-  chart_card(
-    trend_chart(trend_long, refs, y_title = "Annual mean PM2.5 (µg/m³)"),
-    alt = trend_alt,
-    source = paste(
-      "Source: OHID Fingertips indicator 93867 (Defra modelled PM2.5, population-weighted).",
-      "London is the mean of the 33 London areas weighted by each year's ONS mid-year population.",
-      "Reference lines: WHO global air quality guidelines 2021 (5 µg/m³); England's target of 10 µg/m³ is an interim target for December 2030 (Environmental Improvement Plan 2025) and a legal target for the end of 2040 (SI 2023/96).",
-      "England's target is tested at every monitoring station, not on an area average, so the line shows the target level, not compliance."
-    )
+#| title: !expr trend_title
+chart_card(
+  trend_chart(trend_long, refs, y_title = "Annual mean PM2.5 (µg/m³)"),
+  alt = trend_alt,
+  source = paste(
+    "Source: OHID Fingertips indicator 93867 (Defra modelled PM2.5, population-weighted).",
+    "London is the mean of the 33 London areas weighted by each year's ONS mid-year population.",
+    "Reference lines: WHO global air quality guidelines 2021 (5 µg/m³); England's target of 10 µg/m³ is an interim target for December 2030 (Environmental Improvement Plan 2025) and a legal target for the end of 2040 (SI 2023/96).",
+    "England's target is tested at every monitoring station, not on an area average, so the line shows the target level, not compliance."
   )
-} else {
-  waiting("02_trends.sql")
-}
+)
 ```
 
 ### Column {width=32%}
 
 ```{r}
 #| title: PM2.5 by year (µg/m³)
-if (!is.null(trends)) {
-  trends |>
-    filter(area_group %in% c("London", "England")) |>
-    select(year, area_group, pm25) |>
-    tidyr::pivot_wider(names_from = area_group, values_from = pm25) |>
-    select(year, London, England) |>
-    reactable(
-      columns = list(
-        year = colDef(name = "Year"),
-        London = colDef(name = "London (µg/m³)", format = colFormat(digits = 1)),
-        England = colDef(name = "England (µg/m³)", format = colFormat(digits = 1))
-      ),
-      compact = TRUE, highlight = TRUE,
-      style = list(fontVariantNumeric = "tabular-nums")
-    )
-} else {
-  waiting("02_trends.sql")
-}
+trends |>
+  filter(area_group %in% c("London", "England")) |>
+  select(year, area_group, pm25) |>
+  tidyr::pivot_wider(names_from = area_group, values_from = pm25) |>
+  select(year, London, England) |>
+  reactable(
+    columns = list(
+      year = colDef(name = "Year"),
+      London = colDef(name = "London (µg/m³)", format = colFormat(digits = 1)),
+      England = colDef(name = "England (µg/m³)", format = colFormat(digits = 1))
+    ),
+    compact = TRUE, highlight = TRUE,
+    style = list(fontVariantNumeric = "tabular-nums")
+  )
 ```
 
 # Boroughs
 
-::: {.card title="Coming in session 3"}
-A map of PM2.5 in 2024, a ranked bar chart of the share of deaths attributable to PM2.5, and a searchable table of every borough. The City of London will be flagged and left out of rankings because its resident population is small.
-:::
+## Row {height="760px"}
+
+### Column {width=50%}
+
+```{r}
+#| title: !expr map_title
+chart_card(
+  borough_map(boundaries, transmute(latest, area_code, value = pm25),
+              legend_title = paste0("PM2.5 ", highest$pm25_year, "<br>µg/m³"), note_codes = city_code),
+  alt = paste0(
+    "Map of London's 33 local authority areas shaded by annual mean PM2.5 in ", highest$pm25_year,
+    ", from ", fmt_ugm3(min(latest$pm25)), " to ", fmt_ugm3(max(latest$pm25)),
+    ". Darker blue means higher PM2.5. Inner boroughs are darkest. Every value is in the table below."
+  ),
+  source = paste(
+    "Source: OHID Fingertips indicator 93867. Boundaries: ONS Local Authority Districts (May 2026) BUC,",
+    "contains OS data © Crown copyright and database right 2026. The City of London has the highest value but",
+    "about 9,000 residents, so it is shown but not ranked."
+  )
+)
+```
+
+### Column {width=50%}
+
+```{r}
+#| title: !expr bar_title
+chart_card(
+  ranked_bar_chart(
+    transmute(ranked, label = area_name, value = attributable_pct),
+    x_title = paste0("Deaths at 30+ attributable to PM2.5, ", af_high$pm25_year, " (%)"),
+    hover_suffix = "%"
+  ),
+  alt = paste0(
+    "Ranked bar chart of the share of deaths at ages 30 and over attributable to PM2.5 in the 32 London boroughs, ",
+    "from ", fmt_pct(af_low$attributable_pct), " in ", af_low$area_name, " to ",
+    fmt_pct(af_high$attributable_pct), " in ", af_high$area_name, ". The City of London is left out."
+  ),
+  source = paste(
+    "Source: OHID Fingertips indicator 93861, which uses COMEAP's hazard ratio of 1.08 per 10 µg/m³.",
+    "City of London left out (small population)."
+  )
+)
+```
+
+## Row {height="620px"}
+
+```{r}
+#| title: Every London area, latest values (search or sort)
+latest |>
+  transmute(
+    area_name = ifelse(is_city_of_london, paste0(area_name, " (small population, not ranked)"), area_name),
+    pm25_rank, pm25, attributable_pct, imd_score,
+    asthma_u19_rate, copd_rate
+  ) |>
+  reactable(
+    searchable = TRUE, defaultPageSize = 33, compact = TRUE, highlight = TRUE,
+    defaultSorted = "pm25_rank",
+    style = list(fontVariantNumeric = "tabular-nums"),
+    columns = list(
+      area_name = colDef(name = "Area", minWidth = 200),
+      pm25_rank = colDef(name = "PM2.5 rank", align = "right", sortNALast = TRUE),
+      pm25 = colDef(name = paste0("PM2.5 ", highest$pm25_year, " (µg/m³)"), format = colFormat(digits = 2)),
+      attributable_pct = colDef(name = paste0("Attributable deaths ", highest$pm25_year, " (%)"), format = colFormat(digits = 2)),
+      imd_score = colDef(name = "IMD 2025 score", format = colFormat(digits = 1)),
+      asthma_u19_rate = colDef(name = paste0("Asthma admissions <19, ", ranked$asthma_u19_period[1], " (per 100,000)"),
+                               format = colFormat(digits = 0)),
+      copd_rate = colDef(name = paste0("COPD admissions 35+, ", ranked$copd_period[1], " (per 100,000, age-standardised)"),
+                         format = colFormat(digits = 0))
+    )
+  )
+```
 
 # Deprivation
 
-::: {.card title="Coming in session 3"}
-IMD score against PM2.5 for each borough, with the correlation. This is an ecological comparison: inner boroughs are both denser and, in many cases, more deprived.
-:::
+## Row {height="520px"}
+
+### Column {width=60%}
+
+```{r}
+#| title: !expr deprivation_title
+chart_card(
+  scatter_chart(
+    transmute(ranked, x = imd_score, y = pm25, label = area_name),
+    x_title = "IMD 2025 score (higher = more deprived)", y_title = paste0("PM2.5 ", highest$pm25_year, " (µg/m³)")
+  ),
+  alt = paste0(
+    "Scatter plot of IMD 2025 deprivation score against PM2.5 in ", highest$pm25_year, " for the 32 London boroughs. ",
+    "The correlation is ", fmt_num(imd_r, 2), ". Each point is a borough; hover to see its name."
+  ),
+  source = "Source: OHID Fingertips indicators 94240 (IMD 2025) and 93867 (PM2.5). City of London left out. Pearson correlation across 32 boroughs."
+)
+```
+
+### Column {width=40%}
+
+```{r}
+#| title: !expr thirds_title
+deprivation |>
+  transmute(
+    imd_group = paste0(imd_group, " (", n_boroughs, " boroughs, IMD ", fmt_num(imd_score_min), " to ", fmt_num(imd_score_max), ")"),
+    mean_pm25, mean_attributable_pct
+  ) |>
+  reactable(
+    compact = TRUE, style = list(fontVariantNumeric = "tabular-nums"),
+    columns = list(
+      imd_group = colDef(name = "IMD 2025 group", minWidth = 170),
+      mean_pm25 = colDef(name = "Mean PM2.5 (µg/m³)", format = colFormat(digits = 2)),
+      mean_attributable_pct = colDef(name = "Mean attributable deaths (%)", format = colFormat(digits = 2))
+    )
+  )
+```
+
+## Row {height="230px"}
+
+```{r}
+#| title: How to read this
+tags$div(
+  tags$p("This is an ecological comparison of areas, not people. Inner London boroughs are both denser and, in many cases, more deprived, and they sit where traffic and the urban background are highest, so deprivation and pollution are tangled with geography."),
+  tags$p("The thirds come from sql/03_deprivation_groups.sql, which splits the 32 boroughs with NTILE(3) on the IMD 2025 score. IMD 2025 is a relative measure: it ranks areas but does not say how much more deprived one is than another, and it is not directly comparable with IMD 2019.")
+)
+```
 
 # Respiratory admissions
 
-::: {.card title="Coming in session 3"}
-Asthma admissions (under 19) and COPD admissions (35+) against PM2.5. Descriptive only, not causal. For both indicators Fingertips combines the City of London with Hackney.
-:::
+## Row {height="500px"}
+
+```{r}
+#| title: !expr asthma_title
+chart_card(
+  scatter_chart(
+    transmute(ranked, x = pm25, y = asthma_u19_rate, label = area_name),
+    x_title = paste0("PM2.5 ", highest$pm25_year, " (µg/m³)"),
+    y_title = "Asthma admissions under 19 (per 100,000)", x_digits = 2, y_digits = 0
+  ),
+  alt = paste0(
+    "Scatter plot of PM2.5 in ", highest$pm25_year, " against emergency asthma admissions under 19 in ",
+    ranked$asthma_u19_period[1], " for 32 London boroughs; correlation ", fmt_num(asthma_r, 2), "."
+  ),
+  source = "Source: OHID Fingertips indicators 90810 (crude rate) and 93867. Hackney's value includes the City of London; the City is left out."
+)
+```
+
+```{r}
+#| title: !expr copd_title
+chart_card(
+  scatter_chart(
+    transmute(ranked, x = pm25, y = copd_rate, label = area_name),
+    x_title = paste0("PM2.5 ", highest$pm25_year, " (µg/m³)"),
+    y_title = "COPD admissions 35+ (per 100,000)", x_digits = 2, y_digits = 0
+  ),
+  alt = paste0(
+    "Scatter plot of PM2.5 in ", highest$pm25_year, " against emergency COPD admissions at 35 and over in ",
+    ranked$copd_period[1], " for 32 London boroughs; correlation ", fmt_num(copd_r, 2), "."
+  ),
+  source = "Source: OHID Fingertips indicators 92302 (directly age-standardised rate) and 93867. Hackney's value includes the City of London; the City is left out."
+)
+```
+
+## Row {height="200px"}
+
+```{r}
+#| title: Descriptive only
+tags$div(
+  tags$p("These charts compare areas. They do not show that PM2.5 causes admissions: smoking, deprivation, housing, access to primary care and how hospitals code admissions all differ between boroughs. The admission periods are financial years, while PM2.5 is a calendar year. The model on the next page counts deaths only, not admissions.")
+)
+```
 
 # What a 1 µg/m³ cut is worth
 
-::: {.card title="Coming in sessions 2 and 3"}
-QALYs gained and break-even annual spend for each borough from a sustained 1 µg/m³ cut in PM2.5, with sensitivity analysis and the full list of assumptions.
-:::
+## Row {height="190px"}
+
+```{r}
+#| content: valuebox
+#| title: "QALYs gained across London (discounted at 3.5%)"
+list(icon = "heart", color = "light", value = fmt_num(results_london$qaly_gained_disc, 0))
+```
+
+```{r}
+#| content: valuebox
+#| title: !expr paste0("Break-even spend a year over ", base_horizon, " years at £", format(base_threshold, big.mark = ","), " per QALY")
+list(icon = "cash-stack", color = "light", value = fmt_gbp_m(results_london$annual_breakeven))
+```
+
+```{r}
+#| content: valuebox
+#| title: !expr paste0("Per resident a year (95% interval from hazard-ratio uncertainty ", fmt_gbp(psa_london$per_resident_low, 2), " to ", fmt_gbp(psa_london$per_resident_high, 2), ")")
+list(icon = "person", color = "light", value = fmt_gbp(results_london$annual_per_resident, 2))
+```
+
+## Row {height="640px"}
+
+```{r}
+#| title: !expr value_table_title
+borough_value |>
+  mutate(across(c(nice_guidelines_h10, nice_guidelines_h20, nice_guidelines_h30, nice_previous_upper_h20), \(x) x / 1e6)) |>
+  select(area_name, qaly_gained_disc, nice_guidelines_h10, nice_guidelines_h20, nice_guidelines_h30,
+         nice_previous_upper_h20, per_resident, psa_interval) |>
+  reactable(
+    searchable = TRUE, defaultPageSize = 33, compact = TRUE, highlight = TRUE,
+    style = list(fontVariantNumeric = "tabular-nums"),
+    columns = list(
+      area_name = colDef(name = "Area", minWidth = 180),
+      qaly_gained_disc = colDef(name = "QALYs gained (discounted)", format = colFormat(digits = 0, separators = TRUE)),
+      nice_guidelines_h10 = colDef(name = "£20,000/QALY over 10 years (£m a year)", format = colFormat(digits = 2, prefix = "£", suffix = "m")),
+      nice_guidelines_h20 = colDef(name = "£20,000/QALY over 20 years (£m a year)", format = colFormat(digits = 2, prefix = "£", suffix = "m")),
+      nice_guidelines_h30 = colDef(name = "£20,000/QALY over 30 years (£m a year)", format = colFormat(digits = 2, prefix = "£", suffix = "m")),
+      nice_previous_upper_h20 = colDef(name = "£30,000/QALY over 20 years (£m a year)", format = colFormat(digits = 2, prefix = "£", suffix = "m")),
+      per_resident = colDef(name = "Per resident a year (£20,000, 20 years)", format = colFormat(digits = 2, prefix = "£")),
+      psa_interval = colDef(name = "95% interval per resident (hazard ratio only)", minWidth = 150)
+    )
+  )
+```
+
+## Row {height="470px"}
+
+```{r}
+#| title: The annual figure depends on the horizon, unless the cut lasts only while it is paid for
+horizon_table |>
+  mutate(across(c(h10, h20, h30), \(x) x / 1e6)) |>
+  reactable(
+    compact = TRUE, style = list(fontVariantNumeric = "tabular-nums"),
+    groupBy = "view", defaultExpanded = TRUE,
+    columns = list(
+      view = colDef(name = "View", minWidth = 150),
+      threshold_label = colDef(name = "Threshold", minWidth = 170),
+      threshold = colDef(name = "£ per QALY", format = colFormat(digits = 0, separators = TRUE, prefix = "£")),
+      h10 = colDef(name = "10 years (£m a year)", format = colFormat(digits = 1, prefix = "£", suffix = "m")),
+      h20 = colDef(name = "20 years (£m a year)", format = colFormat(digits = 1, prefix = "£", suffix = "m")),
+      h30 = colDef(name = "30 years (£m a year)", format = colFormat(digits = 1, prefix = "£", suffix = "m"))
+    )
+  )
+```
+
+## Row {height="330px"}
+
+```{r}
+#| title: Why the horizon matters
+tags$div(
+  tags$p(paste0(
+    "The model gives one present value: the most London could spend, in today's money, for the QALYs gained. ",
+    "Spreading that same sum evenly over 10 years gives a larger yearly figure than spreading it over 30. ",
+    "At £", format(base_threshold, big.mark = ","), " per QALY, London's break-even spend is ",
+    fmt_gbp_m(london_horizons$h10[london_horizons$threshold == base_threshold]), " a year over 10 years, ",
+    fmt_gbp_m(london_horizons$h20[london_horizons$threshold == base_threshold]), " over 20 and ",
+    fmt_gbp_m(london_horizons$h30[london_horizons$threshold == base_threshold]), " over 30. ",
+    "This choice moves the answer by more than a factor of two, so the tables show all three horizons. ",
+    "That reading assumes the years of spending buy a cut that then lasts, as with new infrastructure."
+  )),
+  tags$p(paste0(
+    "If instead the cut lasts only while the money is spent and the benefit then fades on the same lag, ",
+    "the break-even spend barely depends on the horizon: ", fmt_gbp_m(temp_20k$h10), ", ",
+    fmt_gbp_m(temp_20k$h20), " and ", fmt_gbp_m(temp_20k$h30), " a year over 10, 20 and 30 years at £",
+    format(base_threshold, big.mark = ","), " per QALY. Use this view for schemes that need running costs every year."
+  )),
+  tags$p("Thresholds: NICE guidelines, which cover public health, state £20,000 per QALY. £25,000 to £35,000 has applied to NICE technology appraisals of medicines since spring 2026 and is shown for comparison only. The societal value comes from Defra's air quality appraisal guidance and is a cost-benefit value, not the NHS's opportunity cost, so it uses Green Book discounting (1.5% for health).")
+)
+```
+
+## Row {height="520px"}
+
+### Column {width=55%}
+
+```{r}
+#| title: !expr tornado_title
+chart_card(
+  tornado_chart(tornado, tornado$base_value[1], x_title = "London break-even spend (£ million a year)"),
+  alt = paste0(
+    "Tornado diagram of London's break-even annual spend at £", format(base_threshold, big.mark = ","),
+    " per QALY. The base case is ", fmt_gbp_m(tornado$base_value[1]), ". ",
+    paste0(tornado$input, ": ", fmt_gbp_m(tornado$low_value), " to ", fmt_gbp_m(tornado$high_value), collapse = "; "), "."
+  ),
+  source = paste0(
+    "One input changed at a time from the base case. Not uncertainties, so not shown: EQ-5D-3L norms (the pre-2026 NICE method) give ",
+    fmt_gbp_m(comparison_3l$annual_breakeven), " a year; a cut that lasts only while it is paid for gives ", fmt_gbp_m(temp_20k$h20),
+    ". Source: outputs/tornado.csv and outputs/comparisons.csv from R/06_sensitivity.R."
+  )
+)
+```
+
+### Column {width=45%}
+
+```{r}
+#| title: !expr accept_title
+chart_card(
+  acceptability_chart(acceptability),
+  alt = paste0(
+    "Acceptability curve from 5,000 draws of the hazard ratio. At £", format(base_threshold, big.mark = ","),
+    " per QALY, a scheme costing up to ", fmt_gbp(cost_95, 2), " per resident a year is cost-effective in at least 95% of draws, ",
+    "and one costing up to ", fmt_gbp(cost_50, 2), " in at least half."
+  ),
+  source = paste0(
+    "Probabilistic analysis: ", format(param_n("psa_draws"), big.mark = ","), " draws of the hazard ratio (log-normal around 1.08). ",
+    "Drawn 2.5th and 97.5th percentiles: ", fmt_num(hr_check$drawn[1], 3), " and ", fmt_num(hr_check$drawn[3], 3),
+    " (published interval 1.06 to 1.09). Utilities, life tables and population are held fixed."
+  )
+)
+```
+
+## Row {height="600px"}
+
+```{r}
+#| title: Assumptions and sources from model/parameters.csv (open a row for its note)
+assumptions <- params_table |>
+  transmute(
+    Parameter = name, Value = value,
+    Range = ifelse(is.na(low), "", paste(low, "to", high)),
+    Source = ifelse(is.na(source_url), source_detail,
+                    paste0('<a href="', source_url, '">', htmltools::htmlEscape(source_detail), "</a>")),
+    note
+  )
+reactable(
+  select(assumptions, -note),
+  compact = TRUE, searchable = TRUE, defaultPageSize = 30,
+  columns = list(
+    Parameter = colDef(minWidth = 160),
+    Value = colDef(minWidth = 90),
+    Range = colDef(minWidth = 90),
+    Source = colDef(html = TRUE, minWidth = 300)
+  ),
+  details = function(i) tags$div(style = "padding: 0.5rem 1rem;", assumptions$note[i])
+)
+```
 
 # Methods and sources
 
+## Row
+
+### Column {width=55%}
+
+::: {.card title="Method in plain English"}
+**Question.** What is a permanent cut of `r param("delta_pm25")` µg/m³ in annual mean PM2.5 worth in each London borough, in quality-adjusted life years (QALYs)? How much could be spent each year to achieve it and stay cost-effective? In practice much of London's PM2.5 is regional, so read each borough's figure as the value to its residents of a London-wide cut. Under COMEAP's linear, no-threshold relationship a 1 µg/m³ cut is worth the same per person whatever the starting level, so borough figures differ by population, not by how polluted the borough is.
+
+**Effect on death rates.** Long-term exposure to PM2.5 raises the risk of death from all causes. COMEAP (2022) recommends a hazard ratio of `r param("hr_per_10ugm3")` per 10 µg/m³ (95% interval `r params_table$low[params_table$name == "hr_per_10ugm3"]` to `r params_table$high[params_table$name == "hr_per_10ugm3"]`), linear with no cut-off. A `r param("delta_pm25")` µg/m³ cut multiplies the death rate at each age by `r fmt_num(model_checks$model[grepl("Hazard", model_checks$check)], 4)` once fully in effect. The same coefficient sits behind the official Fingertips figures, and a test in this project checks that.
+
+**Delay.** The benefit builds up over time, following the US EPA cessation lag that COMEAP recommends: `r as.numeric(param("lag_share_year1")) * 100`% in the first year, `r as.numeric(param("lag_share_years2_5")) * 100`% more over years 2 to 5 and the last `r as.numeric(param("lag_share_years6_20")) * 100`% over years 6 to 20.
+
+**Who gains.** Residents aged `r param("age_min")` and over in mid-`r param("population_year")`, by sex and single year of age, followed to age `r param("age_max")` using England's life table (`r param("life_table_period")`). This closed cohort leaves out people who turn 30 later, so it is conservative; the open cohort is a scenario. Boroughs differ by population size and age structure; a scenario scales death rates by each borough's standardised mortality ratio.
+
+**From life-years to money.** Each extra year of life is weighted by the average EQ-5D-5L score for that age and sex to give QALYs (NICE's preferred value set since August 2026), and discounted at `r as.numeric(param("discount_rate_health")) * 100`% a year (NICE). The break-even present value is discounted QALYs times a cost-effectiveness threshold. Spread evenly over `r param("horizon_years")` years, that gives the break-even annual spend. Costs and health are both discounted from the end of year 1, so the annual figure does not depend on that convention. Death rates are held at 2022-2024 levels throughout (period, not projected, mortality), as in COMEAP's method.
+
+**Checks.** The model's life expectancy at 30 is within `r fmt_num(max(abs(model_checks$difference), na.rm = TRUE), 2)` years of ONS for both sexes. Tests confirm that a hazard ratio of 1 gives no gain, a 2 µg/m³ cut gives about twice the gain, and the London total equals the sum of the boroughs.
+:::
+
+### Column {width=45%}
+
+::: {.card title="Limitations"}
+- **Deaths only, so likely conservative overall.** Illness, children's health and NHS savings are left out. Public Health England (2018) estimated NHS and social care savings from a 1 µg/m³ cut, but its scenario is described inconsistently (one year or sustained), so it is not added. Against that, extra years are valued at average population quality of life, which may be too high for the people with heart and lung disease whose deaths are delayed.
+- **No moving.** Residents are followed for life as if they never leave their borough. London has high migration, so borough figures are best read as the value to current residents of a London-wide cut.
+- **Who is counted.** The base case counts current residents aged 30 and over; COMEAP's own method follows the whole current population. The open-cohort scenario adds people who turn 30 in the next 19 years but not births or newcomers.
+- **Whose opportunity cost.** NICE thresholds reflect what the NHS gives up elsewhere. A council spending its own public health grant faces a different trade-off; the societal value shows a wider view.
+- **Linear effect.** The value per µg/m³ is roughly constant for small cuts. Do not scale it up to large cuts without re-running the model.
+- **England death rates** in the base case: inner and outer boroughs differ only in size and age structure unless the SMR scenario is used.
+- **Modelled exposure.** PM2.5 comes from Defra's model at 1 km resolution, weighted by population. Exposure for any one person differs.
+- **Utilities** are England-wide norms from the Health Survey for England 2017 and 2018, with no London-specific values.
+- **The PSA** varies the hazard ratio only, so its 95% interval reflects that uncertainty alone. The one-way analysis covers the structural choices.
+- **Perspective.** The break-even refers to public spending and leaves out any NHS and social care savings, which would raise it.
+:::
+
+## Row
+
 ::: {.card title="Data sources"}
-- OHID Fingertips API, upper-tier local authorities (area type 502): PM2.5 concentration (93867), fraction of mortality attributable to PM2.5 (93861), asthma admissions under 19 (90810), COPD emergency admissions 35+ (92302), IMD 2025 score (94240). <https://fingertips.phe.org.uk/>
+- OHID Fingertips API, upper-tier local authorities (area type 502): PM2.5 concentration (93867), fraction of mortality attributable to PM2.5 (93861), asthma admissions under 19 (90810), COPD emergency admissions 35+ (92302), IMD 2025 score (94240), all-cause SMR (93250). <https://fingertips.phe.org.uk/>
 - ONS mid-year population estimates by single year of age, via Nomis dataset NM_2002_1. <https://www.nomisweb.co.uk/>
 - ONS National life tables, England, 2022 to 2024. <https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/datasets/nationallifetablesenglandreferencetables>
-- Hernández Alava M, Pudney S, Wailoo A. Estimating EQ-5D by Age and Sex for the UK. NICE Decision Support Unit, 2022. <https://sheffield.ac.uk/nice-dsu/methods-development/estimating-eq-5d>
+- COMEAP (2022) Statement on quantifying mortality associated with long-term exposure to PM2.5. <https://www.gov.uk/government/publications/particulate-air-pollution-quantifying-effects-on-mortality>
+- Hernández Alava M, Wailoo A (2026) EQ-5D-5L age adjustment estimates using the Health Survey for England, EEPRU Report 082, doi:10.15131/shef.data.31889488. EQ-5D-3L scenario: Hernández Alava M, Pudney S, Wailoo A (2022), NICE Decision Support Unit.
+- NICE PMG20 (guidelines manual) and PMG36 (technology appraisal manual); NICE news on cost-effectiveness thresholds, 1 December 2025 and 2 April 2026.
+- HM Treasury, The Green Book (2026) and the Green Book Discount Rate Review (2026); Defra, Air quality appraisal: impact pathways approach (2026).
+- WHO global air quality guidelines (2021); Environmental Targets (Fine Particulate Matter) (England) Regulations 2023; Environmental Improvement Plan 2025.
 - ONS Open Geography Portal, Local Authority Districts (May 2026) Boundaries UK BUC.
+
+Every parameter, with the page or paragraph it comes from, is in the assumptions table and in `model/parameters.csv`. Code: <https://github.com/LKOTA97/london-air-health>.
 
 Contains public sector information licensed under the Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2026. Data from OHID Fingertips and the Office for National Statistics.
 
-Personal project by Lassi Kotamäki. Views are my own.
+Personal project by Lassi Kotamäki. Views are my own. Built with help from an AI coding assistant.
 :::
