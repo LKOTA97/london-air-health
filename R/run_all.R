@@ -6,8 +6,13 @@ steps <- c(
   "R/01_get_fingertips.R",
   "R/02_get_ons.R",
   "R/03_get_other.R",
-  "R/04_build_db.R"
+  "R/04_build_db.R",
+  "R/05_model.R",
+  "R/06_sensitivity.R"
 )
+
+# 06 is added once it exists, so the pipeline runs at every stage of the build
+steps <- steps[file.exists(here::here(steps))]
 
 for (step in steps) {
   message("\n=== ", step, " ===")

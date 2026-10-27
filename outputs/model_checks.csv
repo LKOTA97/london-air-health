@@ -1,0 +1,4 @@
+check,model,reference,difference
+Life expectancy at 30 - Female,53.867133196032846,53.9,-0.03286680396715269
+Life expectancy at 30 - Male,50.276277967892206,50.28,-0.0037220321077953145
+Hazard multiplier at full effect,0.9923334350682028,NA,NA

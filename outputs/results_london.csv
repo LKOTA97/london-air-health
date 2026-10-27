@@ -1,0 +1,2 @@
+area_code,area_name,is_city_of_london,ly_gained,ly_gained_disc,qaly_gained,qaly_gained_disc,population,population_30plus,qaly_disc_per_100k_30plus,days_per_person_30plus,pv_breakeven,annual_breakeven,annual_per_resident
+LONDON,London,FALSE,318406.9761402538,101994.23388612787,255941.83615475448,82670.16797046218,9122909,NA,NA,NA,1653403359.4092436,116335240.72470714,12.751989603832193
