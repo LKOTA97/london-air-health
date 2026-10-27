@@ -164,14 +164,20 @@ clean_tables <- list(
 iwalk(clean_tables, \(d, name) write_csv(d, file.path(paths$clean, paste0(name, ".csv")), na = ""))
 
 boundaries_path <- file.path(paths$clean, "london_boundaries.geojson")
-if (file.exists(boundaries_path)) file.remove(boundaries_path)
+if (file.exists(boundaries_path)) invisible(file.remove(boundaries_path))
 sf::st_write(boundaries, boundaries_path, quiet = TRUE)
 
 # Load DuckDB ------------------------------------------------------------------
 # Rebuilt from scratch each run so it always matches data/clean/.
+# Written in the v1.2.0 storage format so older DuckDB tools (for example the
+# DuckDB command-line tool, which can lag behind the R package) can open it.
 
-if (file.exists(paths$db)) file.remove(paths$db)
-con <- dbConnect(duckdb::duckdb(dbdir = paths$db, shared_home = FALSE))
+if (file.exists(paths$db)) invisible(file.remove(paths$db))
+con <- dbConnect(duckdb::duckdb(
+  dbdir       = paths$db,
+  shared_home = FALSE,
+  config      = list(storage_compatibility_version = "v1.2.0")
+))
 iwalk(clean_tables, \(d, name) dbWriteTable(con, name, d))
 
 row_counts <- map(names(clean_tables), \(t) {
