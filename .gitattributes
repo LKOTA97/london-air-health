@@ -4,6 +4,10 @@
 # Keep raw downloads byte-for-byte as received
 data/raw/** -text
 
+# The rendered site: store exactly as Quarto writes it, so a fresh render
+# does not show vendored libraries as changed
+docs/** -text
+
 # Binary files
 *.xlsx binary
 *.xls binary
