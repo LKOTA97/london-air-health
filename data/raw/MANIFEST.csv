@@ -1,0 +1,10 @@
+file,url,downloaded_at,rows
+fingertips_90810_asthma_admissions_u19.csv,https://fingertips.phe.org.uk/api/all_data/csv/by_indicator_id?indicator_ids=90810&child_area_type_id=502,2026-10-27T17:01:34+0000,6256
+fingertips_92302_copd_admissions_35plus.csv,https://fingertips.phe.org.uk/api/all_data/csv/by_indicator_id?indicator_ids=92302&child_area_type_id=502,2026-10-27T17:01:34+0000,3434
+fingertips_93250_mortality_smr_all_ages.csv,https://fingertips.phe.org.uk/api/all_data/csv/by_indicator_id?indicator_ids=93250&child_area_type_id=502,2026-10-27T17:01:35+0000,35
+fingertips_93553_imd_2019_score.csv,https://fingertips.phe.org.uk/api/all_data/csv/by_indicator_id?indicator_ids=93553&child_area_type_id=502,2026-10-27T17:01:34+0000,35
+fingertips_93823_mortality_dsr_all_ages.csv,https://fingertips.phe.org.uk/api/all_data/csv/by_indicator_id?indicator_ids=93823&child_area_type_id=502,2026-10-27T17:01:35+0000,8760
+fingertips_93861_pm25_mortality_share.csv,https://fingertips.phe.org.uk/api/all_data/csv/by_indicator_id?indicator_ids=93861&child_area_type_id=502,2026-10-27T17:01:33+0000,525
+fingertips_93867_pm25_concentration.csv,https://fingertips.phe.org.uk/api/all_data/csv/by_indicator_id?indicator_ids=93867&child_area_type_id=502,2026-10-27T17:01:33+0000,485
+fingertips_94240_imd_2025_score.csv,https://fingertips.phe.org.uk/api/all_data/csv/by_indicator_id?indicator_ids=94240&child_area_type_id=502,2026-10-27T17:01:35+0000,35
+fingertips_metadata.csv,"https://fingertips.phe.org.uk/api/indicator_metadata/csv/by_indicator_id?indicator_ids=93867,93861,90810,92302,93553,94240,93250,93823",2026-10-27T17:01:37+0000,8

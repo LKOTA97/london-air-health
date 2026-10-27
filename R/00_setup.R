@@ -41,10 +41,24 @@ fingertips_indicators <- c(
   pm25_mortality_share   = 93861L,
   asthma_admissions_u19  = 90810L,
   copd_admissions_35plus = 92302L,
-  imd_2019_score         = 93553L
+  imd_2019_score         = 93553L,
+  imd_2025_score         = 94240L,
+  # All-cause mortality, for the optional borough mortality scenario
+  mortality_smr_all_ages = 93250L,
+  mortality_dsr_all_ages = 93823L
 )
 
 # Helpers ----------------------------------------------------------------------
+
+# Download a URL to a file, retrying on network errors and server errors.
+download_to <- function(url, dest) {
+  httr2::request(url) |>
+    httr2::req_user_agent("london-air-health (github.com/LKOTA97/london-air-health)") |>
+    httr2::req_timeout(getOption("timeout")) |>
+    httr2::req_retry(max_tries = 3) |>
+    httr2::req_perform(path = dest)
+  invisible(dest)
+}
 
 # Add or replace one row in data/raw/MANIFEST.csv for a downloaded file.
 record_download <- function(file, url, rows) {
