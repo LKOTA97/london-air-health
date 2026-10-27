@@ -36,6 +36,24 @@ get_fingertips_indicator <- function(name, id) {
 summary <- imap(fingertips_indicators, \(id, name) get_fingertips_indicator(name, id)) |>
   list_rbind()
 
+# London region values for the two air pollution indicators (area type 6,
+# Government Office Regions). Used only to check our population-weighted
+# London mean against the official London figure.
+london_region_code <- "E12000007"
+region_url <- sprintf(
+  "%s/all_data/csv/by_indicator_id?indicator_ids=%s&child_area_type_id=6",
+  fingertips_api,
+  paste(fingertips_indicators[c("pm25_concentration", "pm25_mortality_share")], collapse = ",")
+)
+tmp <- tempfile(fileext = ".csv")
+download_to(region_url, tmp)
+region <- read_csv(tmp, col_types = cols(.default = col_character()), na = character()) |>
+  filter(`Area Code` == london_region_code)
+region_file <- "fingertips_london_region_air_pollution.csv"
+write_csv(region, file.path(paths$raw, region_file), na = "")
+record_download(region_file, region_url, nrow(region))
+message("London region rows: ", nrow(region))
+
 # Indicator definitions, methods and caveats, kept as the source for how each
 # indicator is calculated (for example the COMEAP coefficient behind 93861).
 meta_url <- sprintf(
