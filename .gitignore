@@ -13,8 +13,9 @@ renv/cellar/
 # Quarto
 .quarto/
 /_site/
-index_files/
-*_files/libs/
+# Quarto's working files at the project root (the published site in docs/ keeps its own)
+/index_files/
+/*_files/
 
 # DuckDB write-ahead log and temporary files
 *.duckdb.wal
