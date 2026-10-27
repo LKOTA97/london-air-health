@@ -81,9 +81,11 @@ trend_chart <- function(trends, refs, y_title) {
     type = "line", xref = "paper", x0 = 0, x1 = 1, y0 = refs$value[i], y1 = refs$value[i],
     line = list(color = viz$muted, width = 1, dash = "dash")
   ))
+  # Right-aligned so they sit over the latest years, clear of the earlier peaks
   ref_labels <- lapply(seq_len(nrow(refs)), \(i) list(
-    xref = "paper", x = 0.01, xanchor = "left", y = refs$value[i], yanchor = "bottom",
-    text = refs$label[i], showarrow = FALSE, font = list(size = 11, color = viz$ink_2)
+    xref = "paper", x = 0.99, xanchor = "right", y = refs$value[i], yanchor = "bottom",
+    text = refs$label[i], showarrow = FALSE, font = list(size = 11, color = viz$ink_2),
+    bgcolor = viz$surface
   ))
   end_labels <- lapply(seq_len(nrow(last)), \(i) list(
     x = last$year[i], y = last$value[i], xanchor = "left", xshift = 8,

@@ -70,7 +70,7 @@ if (!is.null(trends)) {
     "Line chart of annual mean PM2.5 from ", year_first, " to ", year_last, ". ",
     "London (population-weighted) goes from ", fmt_ugm3(london_pm25_first), " to ", fmt_ugm3(london_pm25_last), "; ",
     "England goes from ", fmt_ugm3(pick("England", year_first, "pm25")), " to ", fmt_ugm3(england_pm25_last), ".",
-    if (nrow(refs) > 0) paste0(" Reference lines: ", paste(refs$label, collapse = "; "), ".") else ""
+    if (nrow(refs) > 0) paste0(" Dashed reference lines: ", paste(refs$description, collapse = "; "), ".") else ""
   )
 }
 
@@ -127,7 +127,9 @@ if (!is.null(trends)) {
     alt = trend_alt,
     source = paste(
       "Source: OHID Fingertips indicator 93867 (Defra modelled PM2.5, population-weighted).",
-      "London is the mean of the 33 London areas weighted by each year's ONS mid-year population."
+      "London is the mean of the 33 London areas weighted by each year's ONS mid-year population.",
+      "Reference lines: WHO global air quality guidelines 2021 (5 µg/m³); England's target of 10 µg/m³ is an interim target for December 2030 (Environmental Improvement Plan 2025) and a legal target for the end of 2040 (SI 2023/96).",
+      "England's target is tested at every monitoring station, not on an area average, so the line shows the target level, not compliance."
     )
   )
 } else {
