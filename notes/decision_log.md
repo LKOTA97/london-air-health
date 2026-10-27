@@ -80,3 +80,49 @@ One entry per modelling or data choice: the options, the choice, the reason and 
 
 - **Finding:** for every London area and year from 2018 to 2024, 93861 equals `100 * (1 - 1.08^(-C/10))` to within 4e-5, where C is 93867. With 1.07 or 1.09 the gap exceeds 1 percentage point.
 - **Source:** the Fingertips metadata for 93861 states "a relative risk (RR) of 1.08 per 10 µg/m3 (COMEAP, 2022)" and AF = 100*(RR-1)/RR. This ties the model's coefficient to the official statistic.
+
+---
+
+The entries below are **proposals for session 2**, based on the source checks in `notes/verified_sources.md` (27 October 2026). Lassi to confirm.
+
+## D12. EQ-5D version for the utility norms (open)
+
+- **Options:**
+  - 3L norms: NICE DSU 2022, HSE 2014, already in the database.
+  - 5L norms: Hernández Alava and Wailoo 2026, EEPRU Report 082, HSE 2017 and 2018, UK 5L value set.
+- **What changed:** NICE PMG51 (27 August 2026) makes 5L the preferred approach for topics starting after that date, including NICE guidelines and so public health. It points to the EEPRU 5L norms.
+- **Proposal:** 5L norms as the base case, 3L as a scenario. Our question is a new analysis, and 5L is NICE's current method.
+- **Effect:** 5L values are higher, especially at older ages (age 90: 0.814 against 0.738 for men), so QALYs will rise.
+- **Licence:** the 5L report is CC BY 4.0, but the spreadsheet has no licence statement, so treat it like the DSU file: download, do not redistribute.
+
+## D13. Thresholds to report (open)
+
+- **Facts:**
+  - NICE guidelines, including public health, state £20,000 per QALY (PMG20 Box 7.2) and give no explicit £30,000.
+  - £25,000 to £35,000 applies only to technology appraisals (NICE FAQ, SI 2026/202).
+- **Proposal:**
+  - Show £20,000 and £30,000 as the range relevant to public health, and £25,000 and £35,000 as the technology appraisal range for comparison, saying why.
+  - Run the tornado at £20,000, NICE's current public health figure, rather than the £25,000 in the brief.
+  - Report the Green Book societal value as a separate scenario.
+
+## D14. Discount rates (open, re-check after the Budget on 28 October 2026)
+
+- **Facts:**
+  - NICE: 3.5% for costs and health (PMG20, PMG36). PMG20 suggests 1.5% sensitivity analyses "particularly for public health guidance".
+  - Green Book 2026: 3.5% standard and 1.5% for health.
+  - The Discount Rate Review (June 2026) recommends 3% for everything, including health. The government has announced the cut to 3%.
+- **Proposal:** 3.5% base case (NICE). Scenarios at 1.5% (PMG20 and Green Book health rate) and at 3.0% (the announced Green Book rate).
+
+## D15. Societal value of a QALY (scenario)
+
+- **Facts:** the Green Book 2026 states no figure. Defra's air quality appraisal guidance (updated April 2026) gives £84,548 per QALY in 2025 prices, "in accordance with the Green Book".
+- **Proposal:** use £84,548 (2025 prices) for the societal-value scenario, with the Defra source. Earlier figures (£60,000 in 2014 prices, £70,158 in 2019 prices) go in the notes.
+
+## D16. Cessation lag year by year
+
+- **Fact:** COMEAP 2022 (para 40) uses the US EPA lag, with years 6 to 20 "with smoothed annual values". COMEAP's 2010 lag paper (Table 17) gives 1.33% a year for years 6 to 20.
+- **Proposal:**
+  - Year 1: 30%.
+  - Years 2 to 5: 12.5% each.
+  - Years 6 to 20: 20/15 = 1.333% each.
+  - Cumulative share: 30, 42.5, 55, 67.5, 80 ... 100% at year 20.
