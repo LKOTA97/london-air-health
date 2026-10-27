@@ -1,0 +1,35 @@
+/*-- scss:defaults --*/
+// One accent colour on a neutral base
+$primary: #2a78d6;
+$body-bg: #f9f9f7;
+$body-color: #0b0b0b;
+$font-family-sans-serif: system-ui, -apple-system, "Segoe UI", sans-serif;
+$navbar-bg: #ffffff;
+$navbar-fg: #0b0b0b;
+$navbar-hl: #2a78d6;
+
+/*-- scss:rules --*/
+.card {
+  background-color: #fcfcfb;
+  border: 1px solid rgba(11, 11, 11, 0.10);
+}
+
+.source-note {
+  color: #52514e;
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0 0;
+}
+
+.quarto-dashboard .bslib-value-box .value-box-value {
+  font-variant-numeric: normal;
+  font-size: clamp(1.5rem, 2.6vw, 2.2rem) !important;
+  line-height: 1.15;
+}
+
+.bslib-value-box .value-box-title {
+  font-size: 0.95rem;
+}
+
+.placeholder-note {
+  color: #52514e;
+}

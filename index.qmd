@@ -1,0 +1,198 @@
+---
+title: "London air pollution and health"
+author: "Lassi Kotamäki"
+format:
+  dashboard:
+    theme: [default, dashboard.scss]
+    scrolling: true
+    nav-buttons:
+      - icon: github
+        href: https://github.com/LKOTA97/london-air-health
+        aria-label: Source code on GitHub
+---
+
+```{r}
+#| label: setup
+#| include: false
+source(here::here("R/dashboard_helpers.R"))
+library(reactable)
+
+con <- DBI::dbConnect(duckdb::duckdb(
+  dbdir = here::here("data", "london_air.duckdb"), read_only = TRUE, shared_home = FALSE
+))
+
+# The dashboard runs the project's SQL queries directly. A query that has not
+# been written yet returns NULL and its cards show a note instead.
+run_sql <- function(file) {
+  path <- here::here("sql", file)
+  if (file.exists(path)) DBI::dbGetQuery(con, readr::read_file(path)) else NULL
+}
+
+trends <- run_sql("02_trends.sql")
+latest <- run_sql("01_borough_latest.sql")
+DBI::dbDisconnect(con, shutdown = TRUE)
+
+# Reference lines for the trend chart, each with its source (verified values only)
+refs_path <- here::here("data", "reference", "air_quality_targets.csv")
+refs <- if (file.exists(refs_path)) {
+  readr::read_csv(refs_path, show_col_types = FALSE) |> filter(show_on_trend_chart)
+} else {
+  tibble(value = numeric(), label = character())
+}
+
+waiting <- function(file) {
+  tags$p(class = "placeholder-note", paste0("Waiting for sql/", file, "."))
+}
+
+if (!is.null(trends)) {
+  year_first <- min(trends$year)
+  year_last  <- max(trends$year)
+  pick <- function(group, yr, col) trends[[col]][trends$area_group == group & trends$year == yr]
+
+  london_pm25_first <- pick("London", year_first, "pm25")
+  london_pm25_last  <- pick("London", year_last, "pm25")
+  england_pm25_last <- pick("England", year_last, "pm25")
+  london_af_last    <- pick("London", year_last, "attributable_pct")
+  england_af_last   <- pick("England", year_last, "attributable_pct")
+
+  trend_long <- trends |>
+    filter(area_group %in% c("London", "England")) |>
+    transmute(year, series = area_group, value = pm25)
+
+  trend_title <- sprintf(
+    "London's PM2.5 %s from %s µg/m³ in %d to %s in %d, %s England's %s",
+    if (london_pm25_last < london_pm25_first) "fell" else "rose",
+    fmt_num(london_pm25_first), year_first, fmt_num(london_pm25_last), year_last,
+    if (london_pm25_last > england_pm25_last) "still above" else "below",
+    fmt_num(england_pm25_last)
+  )
+  trend_alt <- paste0(
+    "Line chart of annual mean PM2.5 from ", year_first, " to ", year_last, ". ",
+    "London (population-weighted) goes from ", fmt_ugm3(london_pm25_first), " to ", fmt_ugm3(london_pm25_last), "; ",
+    "England goes from ", fmt_ugm3(pick("England", year_first, "pm25")), " to ", fmt_ugm3(england_pm25_last), ".",
+    if (nrow(refs) > 0) paste0(" Reference lines: ", paste(refs$label, collapse = "; "), ".") else ""
+  )
+}
+
+if (!is.null(latest)) {
+  ranked <- latest |> filter(!is_city_of_london)
+  lowest  <- ranked |> slice_min(pm25, n = 1)
+  highest <- ranked |> slice_max(pm25, n = 1)
+}
+```
+
+# Overview
+
+## Row {height="190px"}
+
+```{r}
+#| content: valuebox
+#| title: !expr if (!is.null(trends)) paste0("London PM2.5 in ", year_last, " (England ", fmt_ugm3(england_pm25_last), ")") else "London PM2.5"
+list(
+  icon = "wind",
+  color = "light",
+  value = if (!is.null(trends)) fmt_ugm3(london_pm25_last) else "Waiting for sql/02_trends.sql"
+)
+```
+
+```{r}
+#| content: valuebox
+#| title: !expr if (!is.null(trends)) paste0("Deaths at 30+ attributable to PM2.5, ", year_last, " (England ", fmt_pct(england_af_last), ")") else "Deaths attributable to PM2.5"
+list(
+  icon = "heart-pulse",
+  color = "light",
+  value = if (!is.null(trends)) fmt_pct(london_af_last) else "Waiting for sql/02_trends.sql"
+)
+```
+
+```{r}
+#| content: valuebox
+#| title: !expr if (!is.null(latest)) paste0("PM2.5 range across the 32 boroughs, ", lowest$pm25_year, ", µg/m³ (City of London excluded)") else "Range across boroughs"
+list(
+  icon = "arrows-expand",
+  color = "light",
+  value = if (!is.null(latest)) paste0(fmt_num(lowest$pm25), " to ", fmt_num(highest$pm25)) else "Waiting for sql/01_borough_latest.sql"
+)
+```
+
+## Row {height="560px"}
+
+### Column {width=68%}
+
+```{r}
+#| title: !expr if (!is.null(trends)) trend_title else "PM2.5 over time"
+if (!is.null(trends)) {
+  chart_card(
+    trend_chart(trend_long, refs, y_title = "Annual mean PM2.5 (µg/m³)"),
+    alt = trend_alt,
+    source = paste(
+      "Source: OHID Fingertips indicator 93867 (Defra modelled PM2.5, population-weighted).",
+      "London is the mean of the 33 London areas weighted by each year's ONS mid-year population."
+    )
+  )
+} else {
+  waiting("02_trends.sql")
+}
+```
+
+### Column {width=32%}
+
+```{r}
+#| title: PM2.5 by year (µg/m³)
+if (!is.null(trends)) {
+  trends |>
+    filter(area_group %in% c("London", "England")) |>
+    select(year, area_group, pm25) |>
+    tidyr::pivot_wider(names_from = area_group, values_from = pm25) |>
+    select(year, London, England) |>
+    reactable(
+      columns = list(
+        year = colDef(name = "Year"),
+        London = colDef(name = "London (µg/m³)", format = colFormat(digits = 1)),
+        England = colDef(name = "England (µg/m³)", format = colFormat(digits = 1))
+      ),
+      compact = TRUE, highlight = TRUE,
+      style = list(fontVariantNumeric = "tabular-nums")
+    )
+} else {
+  waiting("02_trends.sql")
+}
+```
+
+# Boroughs
+
+::: {.card title="Coming in session 3"}
+A map of PM2.5 in 2024, a ranked bar chart of the share of deaths attributable to PM2.5, and a searchable table of every borough. The City of London will be flagged and left out of rankings because its resident population is small.
+:::
+
+# Deprivation
+
+::: {.card title="Coming in session 3"}
+IMD score against PM2.5 for each borough, with the correlation. This is an ecological comparison: inner boroughs are both denser and, in many cases, more deprived.
+:::
+
+# Respiratory admissions
+
+::: {.card title="Coming in session 3"}
+Asthma admissions (under 19) and COPD admissions (35+) against PM2.5. Descriptive only, not causal. For both indicators Fingertips combines the City of London with Hackney.
+:::
+
+# What a 1 µg/m³ cut is worth
+
+::: {.card title="Coming in sessions 2 and 3"}
+QALYs gained and break-even annual spend for each borough from a sustained 1 µg/m³ cut in PM2.5, with sensitivity analysis and the full list of assumptions.
+:::
+
+# Methods and sources
+
+::: {.card title="Data sources"}
+- OHID Fingertips API, upper-tier local authorities (area type 502): PM2.5 concentration (93867), fraction of mortality attributable to PM2.5 (93861), asthma admissions under 19 (90810), COPD emergency admissions 35+ (92302), IMD 2019 score (93553). <https://fingertips.phe.org.uk/>
+- ONS mid-year population estimates by single year of age, via Nomis dataset NM_2002_1. <https://www.nomisweb.co.uk/>
+- ONS National life tables, England, 2022 to 2024. <https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/datasets/nationallifetablesenglandreferencetables>
+- Hernández Alava M, Pudney S, Wailoo A. Estimating EQ-5D by Age and Sex for the UK. NICE Decision Support Unit, 2022. <https://sheffield.ac.uk/nice-dsu/methods-development/estimating-eq-5d>
+- ONS Open Geography Portal, Local Authority Districts (May 2026) Boundaries UK BUC.
+
+Contains public sector information licensed under the Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2026. Data from OHID Fingertips and the Office for National Statistics.
+
+Personal project by Lassi Kotamäki. Views are my own.
+:::
