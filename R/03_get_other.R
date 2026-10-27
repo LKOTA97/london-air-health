@@ -1,7 +1,8 @@
 # 03_get_other.R
 # Downloads the remaining inputs:
 # 1. EQ-5D-3L population norms by age and sex (NICE Decision Support Unit)
-# 2. London borough boundaries (ONS Open Geography Portal)
+# 2. EQ-5D-5L population norms by age and sex (EEPRU, 2026)
+# 3. London borough boundaries (ONS Open Geography Portal)
 
 source(here::here("R/00_setup.R"))
 
@@ -23,7 +24,25 @@ eq5d <- readxl::read_xls(file.path(paths$raw, eq5d_file), sheet = eq5d_sheet, sk
 record_download(eq5d_file, eq5d_url, nrow(eq5d))
 message("EQ-5D rows (single years of age): ", nrow(eq5d))
 
-# 2. London borough boundaries -------------------------------------------------
+# 2. EQ-5D-5L by age and sex ---------------------------------------------------
+# Hernández Alava M, Wailoo A. EQ-5D-5L age adjustment estimates using the
+# Health Survey for England. EEPRU Report 082, 2026. doi:10.15131/shef.data.31889488
+# NICE PMG51 (27 August 2026) points to these norms for general-population
+# utilities. The supplementary spreadsheet is linked from the EEPRU page
+# https://eepru.sites.sheffield.ac.uk/current-projects/theme-2-measuring-and-valuing-outcomes/eq-5d-5l-adoption
+# and hosted on Google Drive. It carries no licence statement, so like the DSU
+# file it is downloaded but not committed.
+
+eq5d_5l_url  <- "https://docs.google.com/spreadsheets/d/1RbCIWtYclnPBLPboOuT7eAkCmtljpjF3/export?format=xlsx"
+eq5d_5l_file <- "eepru_eq5d_5l_by_age_sex_hse2017_2018.xlsx"
+download_to(eq5d_5l_url, file.path(paths$raw, eq5d_5l_file))
+
+stopifnot("Predictions" %in% readxl::excel_sheets(file.path(paths$raw, eq5d_5l_file)))
+eq5d_5l <- readxl::read_excel(file.path(paths$raw, eq5d_5l_file), sheet = "Predictions")
+record_download(eq5d_5l_file, eq5d_5l_url, nrow(eq5d_5l))
+message("EQ-5D-5L rows (single years of age): ", nrow(eq5d_5l))
+
+# 3. London borough boundaries -------------------------------------------------
 # Local Authority Districts (May 2026) Boundaries UK BUC: ultra generalised
 # (500 m), clipped to the coastline. We request only codes starting E09 and ask
 # the server for WGS84 coordinates (EPSG:4326), which leaflet needs.

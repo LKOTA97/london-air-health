@@ -107,9 +107,22 @@ test_that("life table covers ages 0 to 100 for both sexes with valid probabiliti
   expect_true(all(lt$mx > 0))
 })
 
-test_that("utility norms cover ages 30 to 100 for both sexes and lie between 0 and 1", {
-  u <- query_db("SELECT sex, age, utility FROM utility_norms")
-  expect_true(all(30:100 %in% u$age[u$sex == "Female"]))
-  expect_true(all(30:100 %in% u$age[u$sex == "Male"]))
+test_that("utility norms cover ages 30 to 100 for both versions and sexes and lie between 0 and 1", {
+  u <- query_db("SELECT version, sex, age, utility FROM utility_norms")
+  expect_setequal(unique(u$version), c("EQ-5D-5L", "EQ-5D-3L"))
+  for (v in c("EQ-5D-5L", "EQ-5D-3L")) for (s in c("Female", "Male")) {
+    expect_true(all(30:100 %in% u$age[u$version == v & u$sex == s]))
+  }
   expect_true(all(u$utility > 0 & u$utility <= 1))
+})
+
+test_that("utility norms match the published examples", {
+  u <- query_db("SELECT version, sex, age, utility FROM utility_norms WHERE age = 30")
+  get <- function(v, s) round(u$utility[u$version == v & u$sex == s], 3)
+  # EEPRU Report 082 spreadsheet, sheet Predictions
+  expect_equal(get("EQ-5D-5L", "Male"), 0.935)
+  expect_equal(get("EQ-5D-5L", "Female"), 0.912)
+  # NICE DSU 2022 report, Table 1, HSE 2014 column
+  expect_equal(get("EQ-5D-3L", "Male"), 0.923)
+  expect_equal(get("EQ-5D-3L", "Female"), 0.904)
 })

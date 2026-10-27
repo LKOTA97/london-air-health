@@ -7,7 +7,7 @@
 #   areas         the 33 London areas, the London region and England
 #   population    mid-year population by area, sex, single year of age, year
 #   life_table    England national life table, 2022-2024, by sex and age
-#   utility_norms EQ-5D-3L by sex and single year of age (HSE 2014)
+#   utility_norms EQ-5D by version (5L and 3L), sex and single year of age
 
 source(here::here("R/00_setup.R"))
 library(DBI)
@@ -136,15 +136,27 @@ life_table <- bind_rows(
 
 # Utility norms ----------------------------------------------------------------
 
-utility_norms <- readxl::read_xls(
+# EQ-5D-5L (EEPRU 2026, HSE 2017-18): columns are Age, males, females.
+# EQ-5D-3L (NICE DSU 2022, HSE 2014): columns are age, Females, Males.
+utility_5l <- readxl::read_excel(
+  file.path(paths$raw, "eepru_eq5d_5l_by_age_sex_hse2017_2018.xlsx"),
+  sheet = "Predictions"
+) |>
+  set_names(c("age", "Male", "Female")) |>
+  mutate(version = "EQ-5D-5L")
+
+utility_3l <- readxl::read_xls(
   file.path(paths$raw, "dsu_eq5d_3l_by_age_sex_hse2014.xls"),
   sheet = "Expected EQ-5D-3L", skip = 1
 ) |>
   set_names(c("age", "Female", "Male")) |>
-  mutate(across(everything(), as.numeric)) |>
+  mutate(version = "EQ-5D-3L")
+
+utility_norms <- bind_rows(utility_5l, utility_3l) |>
+  mutate(across(c(age, Female, Male), as.numeric)) |>
   pivot_longer(c(Female, Male), names_to = "sex", values_to = "utility") |>
-  transmute(sex, age = as.integer(age), utility) |>
-  arrange(sex, age)
+  transmute(version, sex, age = as.integer(age), utility) |>
+  arrange(version, sex, age)
 
 # Boundaries -------------------------------------------------------------------
 

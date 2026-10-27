@@ -23,6 +23,7 @@ index_files/
 # Third-party files without an open licence: downloaded by R/03_get_other.R
 # but not redistributed here. The tidy values we use are in data/clean/.
 data/raw/dsu_*
+data/raw/eepru_*
 
 # Secrets and local settings
 .env
