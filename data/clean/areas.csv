@@ -1,0 +1,36 @@
+area_code,area_name,area_type,is_london,is_city_of_london
+E09000001,City of London,Local authority,TRUE,TRUE
+E09000002,Barking and Dagenham,Local authority,TRUE,FALSE
+E09000003,Barnet,Local authority,TRUE,FALSE
+E09000004,Bexley,Local authority,TRUE,FALSE
+E09000005,Brent,Local authority,TRUE,FALSE
+E09000006,Bromley,Local authority,TRUE,FALSE
+E09000007,Camden,Local authority,TRUE,FALSE
+E09000008,Croydon,Local authority,TRUE,FALSE
+E09000009,Ealing,Local authority,TRUE,FALSE
+E09000010,Enfield,Local authority,TRUE,FALSE
+E09000011,Greenwich,Local authority,TRUE,FALSE
+E09000012,Hackney,Local authority,TRUE,FALSE
+E09000013,Hammersmith and Fulham,Local authority,TRUE,FALSE
+E09000014,Haringey,Local authority,TRUE,FALSE
+E09000015,Harrow,Local authority,TRUE,FALSE
+E09000016,Havering,Local authority,TRUE,FALSE
+E09000017,Hillingdon,Local authority,TRUE,FALSE
+E09000018,Hounslow,Local authority,TRUE,FALSE
+E09000019,Islington,Local authority,TRUE,FALSE
+E09000020,Kensington and Chelsea,Local authority,TRUE,FALSE
+E09000021,Kingston upon Thames,Local authority,TRUE,FALSE
+E09000022,Lambeth,Local authority,TRUE,FALSE
+E09000023,Lewisham,Local authority,TRUE,FALSE
+E09000024,Merton,Local authority,TRUE,FALSE
+E09000025,Newham,Local authority,TRUE,FALSE
+E09000026,Redbridge,Local authority,TRUE,FALSE
+E09000027,Richmond upon Thames,Local authority,TRUE,FALSE
+E09000028,Southwark,Local authority,TRUE,FALSE
+E09000029,Sutton,Local authority,TRUE,FALSE
+E09000030,Tower Hamlets,Local authority,TRUE,FALSE
+E09000031,Waltham Forest,Local authority,TRUE,FALSE
+E09000032,Wandsworth,Local authority,TRUE,FALSE
+E09000033,Westminster,Local authority,TRUE,FALSE
+E12000007,London region (statistical),Region,FALSE,FALSE
+E92000001,England,Country,FALSE,FALSE

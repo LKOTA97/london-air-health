@@ -10,8 +10,8 @@ Work in progress. Findings will appear here once the model runs; every number wi
 
 Session 1
 - [x] Environment and `renv`
-- [ ] Data downloads with manifest
-- [ ] DuckDB build and data tests
+- [x] Data downloads with manifest
+- [x] DuckDB build and data tests
 - [ ] SQL: latest values by borough and trends
 - [ ] Dashboard skeleton with the Overview page
 
