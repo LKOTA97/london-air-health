@@ -53,7 +53,10 @@ plotly_defaults <- function(p) {
       margin = list(l = 48, r = 24, t = 16, b = 40),
       hoverlabel = list(bgcolor = "#ffffff", bordercolor = viz$axis, font = list(color = viz$ink))
     ) |>
-    config(displayModeBar = FALSE, responsive = TRUE)
+    config(displayModeBar = FALSE, responsive = TRUE) |>
+    # The "basic" plotly.js bundle covers scatter and bar charts and is about a
+    # quarter of the full library, so the dashboard loads faster on a phone
+    partial_bundle(type = "basic", local = TRUE)
 }
 
 # Trend chart: London (accent) against England (grey), with optional labelled

@@ -1,6 +1,7 @@
 project:
   type: default
-  output-dir: _site
+  # GitHub Pages serves the site from the docs/ folder on the main branch
+  output-dir: docs
   render:
     - index.qmd
 
