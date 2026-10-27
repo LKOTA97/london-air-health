@@ -41,8 +41,8 @@ fingertips_indicators <- c(
   pm25_mortality_share   = 93861L,
   asthma_admissions_u19  = 90810L,
   copd_admissions_35plus = 92302L,
-  imd_2019_score         = 93553L,
-  imd_2025_score         = 94240L,
+  imd_2019_score         = 93553L,  # kept for reference only
+  imd_2025_score         = 94240L,  # the deprivation measure used (decision D8)
   # All-cause mortality, for the optional borough mortality scenario
   mortality_smr_all_ages = 93250L,
   mortality_dsr_all_ages = 93823L

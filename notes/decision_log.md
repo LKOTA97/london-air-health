@@ -55,12 +55,13 @@ One entry per modelling or data choice: the options, the choice, the reason and 
 - **Licence:** the spreadsheet has no open licence. It is downloaded but not committed; only the tidy values are, with the citation.
 - **Open:** NICE may have moved to EQ-5D-5L general-population norms in 2026 (PMG51). Being verified.
 
-## D8. Deprivation measure: IMD 2019 or IMD 2025 (open, Lassi to decide)
+## D8. Deprivation measure: IMD 2025
 
-- **Options:** IMD 2019 (indicator 93553, as in the brief) or IMD 2025 (indicator 94240, published on Fingertips 25 November 2025).
-- **Current choice:** IMD 2019 in `sql/01_borough_latest.sql`, as the brief specifies. Both are in the database.
-- **For IMD 2025:** it is the current official measure.
-- **For IMD 2019:** it matches the brief and much published work. Switching later is a one-line change.
+- **Options:** IMD 2019 (indicator 93553, as in the original brief) or IMD 2025 (indicator 94240, on Fingertips since 25 November 2025).
+- **Choice:** IMD 2025, decided by Lassi on 27 October 2026. Used for `imd_score` in `sql/01_borough_latest.sql`, the deprivation thirds in `sql/03_deprivation_groups.sql` and the Deprivation page. IMD 2019 stays in the database for reference only.
+- **Reason:** it is the current official measure of deprivation in England, and the newest data matches the rest of the project (mid-2025 population, 2024 PM2.5).
+- **Caveat:** the Fingertips metadata says IMD 2025 "is not directly comparable" with IMD 2019. It has 55 indicators against 39, with 20 new and 14 significantly modified. This does not matter here because we use one snapshot, not a change over time. Like IMD 2019, it is a relative measure: it ranks areas but does not say by how much one is more deprived than another.
+- **Source:** Fingertips metadata for 94240, "Notes" and "Caveats" fields (`data/raw/fingertips_metadata.csv`). Technical report: https://www.gov.uk/government/publications/english-indices-of-deprivation-2025-technical-report
 
 ## D9. Borough mortality scenario: which all-cause indicator (open, session 2)
 

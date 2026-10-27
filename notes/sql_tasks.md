@@ -68,8 +68,8 @@ The package IDs were checked against the winget index on 27 October 2026 (Git 2.
 | 93861 | pm25_mortality_share | % of deaths at 30+ attributable to PM2.5, 2018 to 2024 |
 | 90810 | asthma_admissions_u19 | asthma admissions under 19, crude rate per 100,000, 2013/14 to 2024/25 |
 | 92302 | copd_admissions_35plus | emergency COPD admissions 35+, directly standardised rate per 100,000, 2010/11 to 2023/24 |
-| 93553 | imd_2019_score | IMD 2019 score |
-| 94240 | imd_2025_score | IMD 2025 score (not used yet) |
+| 94240 | imd_2025_score | IMD 2025 score: use this one |
+| 93553 | imd_2019_score | IMD 2019 score (kept for reference, not used) |
 | 93250, 93823 | mortality_... | all-cause mortality (for the model, not these tasks) |
 
 `areas`: area_code, area_name, area_type, is_london (true for the 33 E09 areas, including the City of London), is_city_of_london.
@@ -78,7 +78,7 @@ The package IDs were checked against the winget index on 27 October 2026 (Git 2.
 
 ## Task 1: `sql/01_borough_latest.sql`
 
-**Spec.** One row per London area (33 rows) with the latest value of each indicator. "Latest" means the highest `year_start` that indicator has for London areas, which differs between indicators. Use IMD 2019 (93553) for `imd_score`.
+**Spec.** One row per London area (33 rows) with the latest value of each indicator. "Latest" means the highest `year_start` that indicator has for London areas, which differs between indicators. Use IMD 2025 (94240) for `imd_score`.
 
 **Columns, in this order:**
 
@@ -88,7 +88,7 @@ The package IDs were checked against the winget index on 27 October 2026 (Git 2.
 | pm25 | latest PM2.5 |
 | pm25_year | its year (integer) |
 | attributable_pct | attributable % for the same year |
-| imd_score | IMD 2019 score |
+| imd_score | IMD 2025 score |
 | asthma_u19_rate | latest asthma rate |
 | asthma_u19_period | its period label, for example '2024/25' |
 | copd_rate | latest COPD rate |
@@ -102,10 +102,10 @@ Order by `pm25_rank`, with the City of London last.
 
 |area_code |area_name      |  pm25| pm25_year| attributable_pct| imd_score| asthma_u19_rate|asthma_u19_period | copd_rate|copd_period | pm25_rank|is_city_of_london |
 |:---------|:--------------|-----:|---------:|----------------:|---------:|---------------:|:-----------------|---------:|:-----------|---------:|:-----------------|
-|E09000030 |Tower Hamlets  |  9.81|      2024|             7.28|     27.91|          156.78|2024/25           |    501.20|2023/24     |         1|FALSE             |
-|E09000033 |Westminster    |  9.71|      2024|             7.20|     20.34|          186.49|2024/25           |    227.83|2023/24     |         2|FALSE             |
-|E09000019 |Islington      |  9.69|      2024|             7.19|     27.54|          157.67|2024/25           |    374.24|2023/24     |         3|FALSE             |
-|E09000001 |City of London | 10.96|      2024|             8.09|     14.72|              NA|2024/25           |        NA|2023/24     |        NA|TRUE              |
+|E09000030 |Tower Hamlets  |  9.81|      2024|             7.28|     30.55|          156.78|2024/25           |    501.20|2023/24     |         1|FALSE             |
+|E09000033 |Westminster    |  9.71|      2024|             7.20|     23.93|          186.49|2024/25           |    227.83|2023/24     |         2|FALSE             |
+|E09000019 |Islington      |  9.69|      2024|             7.19|     26.65|          157.67|2024/25           |    374.24|2023/24     |         3|FALSE             |
+|E09000001 |City of London | 10.96|      2024|             8.09|     10.21|              NA|2024/25           |        NA|2023/24     |        NA|TRUE              |
 
 (Values are rounded here; your query should return them unrounded. NA shows as NULL in DuckDB.)
 

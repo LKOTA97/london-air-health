@@ -35,6 +35,10 @@ test_that("01_borough_latest.sql returns one row per London area with the latest
   expect_equal(out$pm25[order(out$area_code)], pm25$value[match(sort(out$area_code), pm25$area_code)])
   expect_equal(out$attributable_pct, 100 * (1 - 1.08^(-out$pm25 / 10)), tolerance = 1e-4)
 
+  # Deprivation is IMD 2025 (indicator 94240), see decision D8
+  imd <- indicator_values(94240L)
+  expect_equal(out$imd_score, imd$value[match(out$area_code, imd$area_code)])
+
   # City of London: flagged, not ranked, no admissions values of its own
   city <- out[out$area_code == "E09000001", ]
   expect_true(city$is_city_of_london)

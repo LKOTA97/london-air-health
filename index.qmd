@@ -186,7 +186,7 @@ QALYs gained and break-even annual spend for each borough from a sustained 1 µg
 # Methods and sources
 
 ::: {.card title="Data sources"}
-- OHID Fingertips API, upper-tier local authorities (area type 502): PM2.5 concentration (93867), fraction of mortality attributable to PM2.5 (93861), asthma admissions under 19 (90810), COPD emergency admissions 35+ (92302), IMD 2019 score (93553). <https://fingertips.phe.org.uk/>
+- OHID Fingertips API, upper-tier local authorities (area type 502): PM2.5 concentration (93867), fraction of mortality attributable to PM2.5 (93861), asthma admissions under 19 (90810), COPD emergency admissions 35+ (92302), IMD 2025 score (94240). <https://fingertips.phe.org.uk/>
 - ONS mid-year population estimates by single year of age, via Nomis dataset NM_2002_1. <https://www.nomisweb.co.uk/>
 - ONS National life tables, England, 2022 to 2024. <https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/lifeexpectancies/datasets/nationallifetablesenglandreferencetables>
 - Hernández Alava M, Pudney S, Wailoo A. Estimating EQ-5D by Age and Sex for the UK. NICE Decision Support Unit, 2022. <https://sheffield.ac.uk/nice-dsu/methods-development/estimating-eq-5d>
