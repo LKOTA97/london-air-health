@@ -1,0 +1,30 @@
+# R
+.Rhistory
+.RData
+.Rproj.user/
+.Ruserdata
+
+# renv keeps its own .gitignore for the project library; this is a safety net
+renv/library/
+renv/staging/
+renv/local/
+renv/cellar/
+
+# Quarto
+.quarto/
+/_site/
+index_files/
+*_files/libs/
+
+# DuckDB write-ahead log and temporary files
+*.duckdb.wal
+*.duckdb.tmp/
+
+# Secrets and local settings
+.env
+.Renviron
+
+# OS clutter
+.DS_Store
+Thumbs.db
+desktop.ini

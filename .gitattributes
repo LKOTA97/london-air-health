@@ -1,0 +1,12 @@
+# Normalise text files to LF in the repository so Windows and Linux checkouts match
+* text=auto eol=lf
+
+# Keep raw downloads byte-for-byte as received
+data/raw/** -text
+
+# Binary files
+*.xlsx binary
+*.xls binary
+*.duckdb binary
+*.png binary
+*.pdf binary

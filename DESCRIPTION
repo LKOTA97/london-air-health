@@ -1,0 +1,34 @@
+Type: project
+Title: London air pollution and health
+Description: What a 1 µg/m³ cut in annual mean PM2.5 is worth in each London
+    borough, using OHID Fingertips and ONS data, SQL in DuckDB, an R life-table
+    QALY model and a Quarto dashboard. This file lists the packages renv
+    records in renv.lock.
+Authors@R: person("Lassi", "Kotamäki", role = c("aut", "cre"))
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 4.3)
+Imports:
+    readr,
+    dplyr,
+    tidyr,
+    purrr,
+    stringr,
+    here,
+    ggplot2,
+    scales,
+    plotly,
+    DBI,
+    duckdb,
+    dbplyr,
+    curl,
+    httr2,
+    jsonlite,
+    readxl,
+    sf,
+    leaflet,
+    reactable,
+    testthat,
+    knitr,
+    rmarkdown
