@@ -23,10 +23,11 @@ The answer is framed as a break-even budget, not as the value of one scheme, bec
    - The 95% interval from hazard-ratio uncertainty is £{{per_resident_low}} to £{{per_resident_high}} per resident.
    - Across boroughs the figure runs from £{{borough_min_value}} per resident ({{borough_min_name}}) to £{{borough_max_value}} ({{borough_max_name}}). Boroughs differ by age structure, not by how polluted they are, because the relationship is linear with no threshold.
 
-3. **The annual figure depends most on how the spending is framed.**
+3. **The annual figure depends most on how the spending is framed and discounted.**
    - If the spending buys a cut that then lasts, London's break-even is £{{h_low_m}}m a year when spread over {{horizon_low}} years but £{{h_high_m}}m a year over {{horizon_high}} years, a difference of more than a factor of two.
    - If the cut lasts only while it is paid for, the break-even barely moves: £{{t_low_m}}m to £{{t_high_m}}m a year.
-   - Among uncertain inputs, the Green Book's 1.5% health discount rate raises the base figure to £{{gb_m}}m. The hazard ratio's 95% interval spans £{{hr_low_m}}m to £{{hr_high_m}}m.
+   - The Green Book's discounting rules, revised in the Budget of 28 October 2026, raise the figure to £{{gb_m}}m a year, {{gb_ratio}} times the base case. They discount at {{gb_rate}} a year and uprate health values by {{gb_uprate}} a year, in place of the old, lower health discount rate. The base case keeps NICE's {{r_health}}.
+   - The hazard ratio's 95% interval spans £{{hr_low_m}}m to £{{hr_high_m}}m.
 
 ## How the model works
 
@@ -87,7 +88,7 @@ quarto render          # builds the dashboard into docs/
 - **COMEAP** (2022) statement on PM2.5 and mortality.
 - **EQ-5D-5L norms:** Hernández Alava and Wailoo (2026), EEPRU Report 082.
 - **NICE:** PMG20, PMG36 and PMG51.
-- **HM Treasury:** Green Book (2026).
+- **HM Treasury:** Green Book (2026, updated 28 October 2026), its discounting guidance and the response to the Discount Rate Review (October 2026).
 - **Defra:** air quality appraisal guidance (2026).
 
 Contains public sector information licensed under the Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2026. Data from OHID Fingertips and the Office for National Statistics. Code is MIT licensed (see `LICENSE`); data keeps its original licence.

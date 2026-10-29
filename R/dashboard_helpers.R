@@ -175,11 +175,12 @@ tornado_chart <- function(d, base_value, x_title) {
   plotly_defaults(p) |>
     layout(
       barmode = "overlay", bargap = 0.35,
-      margin = list(l = 190, r = 24, t = 8, b = 40),
+      margin = list(l = 190, r = 24, t = 36, b = 40),
       xaxis = list(title = x_title, gridcolor = viz$grid, tickprefix = "£", ticksuffix = "m",
                    tickformat = ".0f"),
       yaxis = list(title = ""),
-      legend = list(orientation = "h", x = 0, y = 1.08),
+      # Legend sits above the plot area so long bars never run under it
+      legend = list(orientation = "h", x = 0, y = 1, yanchor = "bottom"),
       shapes = list(list(type = "line", yref = "paper", y0 = 0, y1 = 1, x0 = base_value, x1 = base_value,
                          line = list(color = viz$ink, width = 1)))
     )

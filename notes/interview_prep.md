@@ -43,7 +43,7 @@ There is no single right answer, so the project shows several and says what each
 - **£20,000 per QALY (base case).** NICE's guidelines manual, PMG20, covers public health. Box 7.2 says interventions under £20,000 per QALY are "generally considered to be cost effective", and gives no explicit £30,000. My brief used £25,000; the base case moved to £20,000 once the sources were checked.
 - **£25,000 to £35,000.** In use since spring 2026, but for technology appraisals only. NICE's FAQ says the change "only applies to medicines and health technologies evaluated through a Technology Appraisal". Shown for comparison: £145.4m and £203.6m a year.
 - **The council's own opportunity cost.** What a council gives up is whatever else its public health grant would buy, not the NHS's marginal QALY, and I have no published figure for it. PMG20 section 7.7 says the usual perspective for public health is the public sector, which "may be simplified to a local government perspective if few costs and effects apply to other government agencies".
-- **Green Book societal value.** Defra's £84,548 per QALY (2025 prices) is a willingness-to-pay value for cost-benefit analysis, not an opportunity cost. With Green Book conventions (health discounted at 1.5%, spending at 3.5%), it gives £905.9m a year over 20 years.
+- **Green Book societal value.** Defra's £84,548 per QALY (2025 prices) is a willingness-to-pay value for cost-benefit analysis, not an opportunity cost. With Green Book conventions as revised in the Budget of 28 October 2026 (spending and health discounted at 3% for the first 30 years, health values uprated by 2% a year), it gives £1,074.0m a year over 20 years. Under the old rules (health at 1.5%, spending at 3.5%) it was £905.9m.
 
 Break-even is proportional to the threshold, so anyone can rescale the headline.
 
@@ -135,7 +135,7 @@ None of this feeds the model: every borough gets the same per-person effect. To 
 3. **Whole-population cohort.** Follow the whole current population, as COMEAP does over 106 years, so that today's children count once they reach 30. Births could be added after that.
 4. **Migration.** London's population turns over quickly; the model assumes nobody moves.
 5. **Scheme costs.** Take two or three real schemes with published costs and exposure estimates and test them against the break-even.
-6. **Discounting.** Re-run after the Budget on 28 October 2026. The Discount Rate Review recommends 3% for all projects, including health, and the government announced a cut in the standard rate from 3.5% to 3% on 7 September 2026. The project's scenario with 3% for costs and health already gives £128.4m a year.
+6. **Discounting.** Done on 29 October 2026, the day after the Budget. The revised Green Book cuts the standard rate to 3% for the first 30 years and replaces the 1.5% health discount rate with 2% a year uprating of health values. The Green Book scenario now gives £254.1m a year, up from £214.3m, and the base case (NICE's 3.5%) is unchanged. The open question is whether NICE follows the Green Book cut; a flat 3% scenario for costs and health gives £128.4m.
 
 ## 15. How would you explain the result to a director of public health in two sentences?
 
@@ -167,9 +167,9 @@ Base case unless stated: closed cohort aged 30+, HR 1.08, EQ-5D-5L, 3.5% discoun
 | Annuity factors at 3.5%, 10, 20 and 30 years | 8.32, 14.21, 18.39 | `outputs/annuity_factors.csv` |
 | Cut lasts only while paid for, 10, 20 and 30 years | £64.1m, £68.2m, £70.5m a year | `outputs/breakeven_temporary_cut.csv` |
 | £25,000, £30,000 and £35,000 per QALY | £145.4m, £174.5m, £203.6m a year | `outputs/breakeven.csv` |
-| Societal value (£84,548, health at 1.5%) | £905.9m a year | `outputs/breakeven.csv` |
+| Societal value (£84,548, Green Book October 2026 discounting) | £1,074.0m a year | `outputs/breakeven.csv` |
 | HR 1.06 and 1.09 | £88.1m and £130.3m a year | `outputs/oneway.csv` |
-| Discount scenarios: NICE 1.5% both; Green Book 1.5% health, 3.5% costs; Review 3% both | £177.4m, £214.3m, £128.4m a year | `outputs/oneway.csv` |
+| Discount scenarios: NICE 1.5% both; Green Book October 2026 (3% falling after year 30, health uprated 2% a year); flat 3% both | £177.4m, £254.1m, £128.4m a year | `outputs/oneway.csv` |
 | Open cohort | £144.7m a year (1.24 times) | `outputs/oneway.csv` |
 | Life-years not QALYs; no lag; borough SMR | £143.5m; £130.9m; £114.9m a year | `outputs/oneway.csv` |
 | EQ-5D-3L instead of 5L | 75,695 QALYs; £106.5m a year | `outputs/comparisons.csv` |
@@ -190,7 +190,7 @@ From `notes/verified_sources.md`. Know the page or paragraph for the first four.
 - **NICE thresholds for technology appraisals.** £25,000 to £35,000 since spring 2026 (NICE news, 2 April 2026; PMG36 section 6.3); SI 2026/202 gives the power for technology appraisals and highly specialised technologies only; the NICE FAQ confirms it does not yet cover other guidance.
 - **NICE PMG51 (27 August 2026).** EQ-5D-5L value set preferred, including for population norms and NICE guidelines. Norms: Hernández Alava and Wailoo, EEPRU Report 082 (2026).
 - **COMEAP (2010).** Hazards applied from age 30 (section 3.1.2, p.31); the "sustained reduction ... by 1 µg/m3" framing (section 4.1, p.38). COMEAP's separate 2010 lag paper, Table 17, p.52: 1.33% a year in years 6 to 20.
-- **Green Book (2026).** Health discounted at 1.5% (para 6.58). Discount Rate Review (30 June 2026) recommends 3% for all projects including health; the government announced the cut from 3.5% to 3% on 7 September 2026; check the Budget on 28 October 2026.
+- **Green Book (2026, updated 28 October 2026).** 3.00% for years 1 to 30, 2.50% for 31 to 75, 2.25% from 76 (para 6.54). Health values uprated by 2% a year (para 8.58), replacing the 1.5% health discount rate (HM Treasury response, Box 1.A). QALY value £70,000 in 2020-21 prices (para 8.57). This follows the Discount Rate Review (30 June 2026), whose 3% rate HM Treasury accepted (para 2.36).
 - **Defra air quality appraisal, impact pathways (28 April 2026).** £84,548 per QALY in 2025 prices, section 5.3.
 - **Targets.** WHO guideline 5 µg/m³ (2021). Legal target of 10 µg/m³ by the end of 2040 at every relevant monitoring station, and a 35% cut in population exposure against 2016 to 2018 (SI 2023/96, regs 4, 5 and 7). Interim target of 10 µg/m³ by December 2030 (Environmental Improvement Plan 2025, Commitment 21, p.41).
 - **PHE (2018), Table 9, p.30.** NHS and social care costs avoided per 1 µg/m³ per 100,000 people: £2.35m for Lambeth over 2015 to 2035 (1.5% discounting, 2015 prices), with the scenario wording caveat.

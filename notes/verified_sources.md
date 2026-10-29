@@ -9,8 +9,8 @@ Facts the project relies on, checked on **27 October 2026** against the primary 
 | Interim target 12 µg/m³ by January 2028 | **Replaced** by 10 µg/m³ by December 2030 | Environmental Improvement Plan 2025, Commitment 21, p.41 |
 | £25,000 to £35,000 per QALY "confirmed for technology appraisals from April 2026"; unclear for public health | In force since March to April 2026 for **technology appraisals only**. NICE guidelines, including public health, still state £20,000 per QALY | NICE FAQ; PMG20 Box 7.2 |
 | UK EQ-5D norms from the NICE DSU 2022 report (EQ-5D-3L) | NICE now prefers **EQ-5D-5L** (PMG51, 27 August 2026), including for population norms and for NICE guidelines | NICE PMG51 |
-| Green Book health discount rate 1.5% | Still 1.5% today, but a **cut to the standard rate (3.5% to 3%) has been announced**, with changes due at the **Budget on 28 October 2026** | Green Book 2026; Discount Rate Review 2026 |
-| Green Book QALY value about £70,000 | The Green Book itself no longer states one. Latest government figure: **£84,548 in 2025 prices** (Defra, April 2026, "in accordance with the Green Book") | Defra impact pathways guidance |
+| Green Book health discount rate 1.5% | **Removed on 28 October 2026.** The standard rate is now 3.00% for years 1 to 30 (2.50% for 31 to 75, 2.25% from 76), and future health values are uprated by 2% a year instead | Green Book (2026, updated 28 October 2026) paras 6.54 and 8.58; HM Treasury response, Box 1.A |
+| Green Book QALY value about £70,000 | The October 2026 Green Book states **£70,000 in 2020-21 prices** (para 8.57); the February 2026 edition stated none. Defra's figure is **£84,548 in 2025 prices** (April 2026, "in accordance with the Green Book") | Green Book (2026, updated 28 October 2026); Defra impact pathways guidance |
 | Life tables: latest three-year period | 2022 to 2024 (released 10 December 2025) | ONS |
 | Population: mid-2023 or mid-2024 | Mid-2025 (Nomis updated 29 July 2026) | Nomis |
 | IMD 2019 | IMD 2025 now on Fingertips (94240), chosen by Lassi | Fingertips |
@@ -89,6 +89,29 @@ Facts the project relies on, checked on **27 October 2026** against the primary 
 
 ## Green Book and the value of a QALY
 
+### After the Budget of 28 October 2026 (checked 29 October 2026)
+
+Downloaded and read by one agent, re-checked by a second trying to refute it, then the key passages re-read directly with `pdftotext`. All upheld; page numbers below are PDF pages.
+
+- **Budget 2026** (28 October 2026), para 2.22, PDF page 40 (printed 34): "the government is publishing a revised Green Book, formalising the reduction in the discount rate from 3.5% to 3.0%." Link: https://assets.publishing.service.gov.uk/media/6ae20b85460c1346f7be784e/E03668986_HMT_Budget_2026_ELAY__2_.pdf
+- **The Green Book (2026), updated 28 October 2026.** Page: https://www.gov.uk/government/publications/the-green-book--2 ("Updated to reflect changes to the approach to discounting."). PDF: https://assets.publishing.service.gov.uk/media/6ae0ba897b7111c482d80a3b/The_Green_Book_2026.pdf
+  - Para 6.54, page 46: "It is set at 3.00% in real terms for years 1 to 30 of an appraisal. It is 2.50% for years 31 to 75, and then 2.25% for year 76 onwards."
+  - Para 8.57, page 68: "The current monetary willingness-to-pay (WTP) value for a QALY is £70,000 in 2020-21 prices."
+  - Para 8.58, page 68: "the value of future real health effects should be uprated by 2% per annum over time."
+  - The PDF contains no "1.5%" or "1.50%".
+  - The February 2026 PDF link (media/698dbcd17da91680ad7f4308) now redirects to this file.
+- **Discounting supplementary guidance (October 2026).** Link: https://assets.publishing.service.gov.uk/media/6ae0b34016428df537606216/Green_Book_supplementary_guidance_-_discounting.pdf
+  - Para 3.8, page 12: "3.00% for years 1 to 30; 2.50% for years 31 to 75; 2.25% for years 76 to 125."
+  - Annex A, page 14: discount factors for year 30 0.4120, year 31 0.4019, year 75 0.1356, year 76 0.1326 and year 125 0.0446. `tests/testthat/test-model.R` checks the model against them.
+- **HM Treasury response to the Discount Rate Review (October 2026).** Link: https://assets.publishing.service.gov.uk/media/6ae0b3a97cf9b2248904678e/Green_Book_Discount_Rate_Review_2026_-_HM_Treasury_response.pdf
+  - Para 1.4, page 6: of 23 recommendations, 15 accepted in full, 5 in part and 3 not accepted.
+  - Box 1.A, page 7: "The Green Book no longer recommends the use of the health discount rate of 1.50%." It also lists the new rates for each band.
+  - Para 2.36, page 15: "HM Treasury accepts the recommendation to set the headline Green Book discount rate to 3.00% for years 1 to 30."
+  - No date is given from which the new rates apply, and there is no transition rule for appraisals already under way.
+- **Green Book supplementary guidance: health** (gov.uk page): not updated with the Budget; still dated 21 April 2013.
+
+### Before the Budget (checked 27 October 2026; superseded)
+
 - **The Green Book (2026)**, updated 5 February 2026. Links: https://www.gov.uk/government/publications/the-green-book--2 and PDF https://assets.publishing.service.gov.uk/media/698dbcd17da91680ad7f4308/The_Green_Book_2026.pdf
   - Para 6.54: 3.5% for years 1 to 30, 3.0% for 31 to 75, 2.5% from year 76.
   - Para 6.58: health and life effects "should be discounted at a lower rate of 1.5%".
@@ -96,7 +119,7 @@ Facts the project relies on, checked on **27 October 2026** against the primary 
   - This conflicts with Green Book para 6.58, which says 1.5% "applies in every year". Resolve before modelling past 30 years.
   - Link: https://assets.publishing.service.gov.uk/media/698f30a4492ea446ea7f43d3/Green_Book_supplementary_guidance_-_discounting.pdf
 - **Green Book Discount Rate Review** (Freeman and Groom, 30 June 2026) recommends 3% for up to 30 years, used "for all projects, including health", which drops the separate 1.5% health rate.
-  - The government announced the cut from 3.5% to 3% on 7 September 2026. A news story of 22 October 2026 says further reforms come "at next week's Budget" (28 October 2026). **Re-check after the Budget.**
+  - The government announced the cut from 3.5% to 3% on 7 September 2026. A news story of 22 October 2026 says further reforms come "at next week's Budget" (28 October 2026). Re-checked after the Budget: see above.
   - Link: https://www.gov.uk/government/publications/green-book-discount-rate-review-2026
 - **QALY value**
   - The Green Book 2026 (para 8.57) points to "supplementary guidance on health", which is a 2013 page with no current figure.

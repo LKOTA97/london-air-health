@@ -107,22 +107,24 @@ The entries below began as proposals and were **implemented on 27 October 2026**
   - Tables also show £30,000 (NICE's previous upper bound, cited to NICE's 1 December 2025 announcement), £25,000 and £35,000 (technology appraisals only), and the societal value.
   - Annual break-even is proportional to the threshold, so the tornado's shape is the same at any threshold.
 
-## D14. Discount rates: 3.5% base, three scenarios (implemented; re-check after the Budget on 28 October 2026)
+## D14. Discount rates: 3.5% base, three scenarios (implemented; updated after the Budget on 28 October 2026, see D24)
 
 - **Facts:**
   - NICE: 3.5% for costs and health (PMG20, PMG36). PMG20 suggests 1.5% sensitivity analyses "particularly for public health guidance".
-  - Green Book 2026: 3.5% standard and 1.5% for health.
-  - The Discount Rate Review (June 2026) recommends 3% for everything, including health. The government has announced the cut to 3%.
-- **Choice:** 3.5% for costs and health (NICE). Three scenarios, each with its own source:
+  - Green Book, revised on 28 October 2026: 3.00% for years 1 to 30, 2.50% for 31 to 75 and 2.25% from year 76 (para 6.54). The separate 1.5% health discount rate is gone. Future health values are uprated by 2% a year instead (para 8.58).
+  - Before the Budget the Green Book used 3.5% as standard and 1.5% for health. The Discount Rate Review (June 2026) recommended 3% for everything; HM Treasury accepted that in its October 2026 response (para 2.36).
+- **Choice:** 3.5% for costs and health (NICE), unchanged by the Budget. Three scenarios, each with its own source:
   - NICE PMG20: 1.5% for both costs and health (177.4m a year).
-  - Green Book: 1.5% for health, 3.5% for costs (214.3m).
-  - Discount Rate Review: 3.0% for both.
+  - Green Book (October 2026): the declining rate for spending and health, with health values uprated 2% a year (254.1m). This replaced "1.5% for health, 3.5% for costs" (214.3m).
+  - 3.0% for both, flat, with no health uprating (128.4m): the rate cut on its own.
 - **Correction:** an earlier draft cited PMG20 for the Green Book version. PMG20's 1.5% applies to both costs and health; the independent methods review caught this.
 
 ## D15. Societal value of a QALY: £84,548, Green Book conventions (implemented)
 
-- **Facts:** the Green Book 2026 states no figure. Defra's air quality appraisal guidance (updated April 2026) gives £84,548 per QALY in 2025 prices, "in accordance with the Green Book".
-- **Choice:** £84,548 (2025 prices), applied with Green Book conventions throughout: QALYs discounted at 1.5%, spending at 3.5%. It is a cost-benefit value, labelled separately from the NICE cost-effectiveness thresholds.
+- **Facts:** the February 2026 Green Book stated no figure; the revision of 28 October 2026 gives £70,000 per QALY in 2020-21 prices (para 8.57). Defra's air quality appraisal guidance (updated April 2026) gives £84,548 per QALY in 2025 prices, "in accordance with the Green Book".
+- **Choice:** £84,548 (2025 prices), the air-quality-specific figure in the more recent price base, applied with Green Book conventions throughout. It is a cost-benefit value, labelled separately from the NICE cost-effectiveness thresholds.
+  - Since the Budget (D24): spending and health discounted on the Green Book schedule, health values uprated 2% a year. London's gain on that basis is 188,995 QALYs, and the break-even is £1,074.0m a year over 20 years.
+  - Before the Budget: QALYs discounted at 1.5% (152,277) and spending at 3.5%, giving £905.9m a year.
 
 ## D16. Cessation lag year by year (implemented)
 
@@ -165,9 +167,27 @@ The entries below began as proposals and were **implemented on 27 October 2026**
 ## D22. Tornado holds uncertain inputs and model choices; comparisons sit apart
 
 - **Choice:** the tornado keeps the inputs the brief lists: HR, lag, discount rates, cohort, QALYs against life-years, SMR, horizon. EQ-5D-3L and the cut-lasts-while-paid-for view go to `outputs/comparisons.csv`, because they answer a different question rather than measuring uncertainty.
-- **Factor-of-two rule:** only the horizon crosses it (2.21), so every borough's result is shown across 10, 20 and 30 years.
+- **Factor-of-two rule:** the horizon crosses it (2.21), so every borough's result is shown across 10, 20 and 30 years. Since the Budget update (D24), discount rates cross it too (2.18): `outputs/factor_of_two.csv` has every borough's result under each discount scenario, and the dashboard names both inputs.
 
 ## D23. Model checked by independent re-implementation
 
 - **What:** a separate agent wrote the model in Python from a written specification only, without seeing the R code. It matched all nine scenarios: discounted QALYs to 12 significant figures. A loop-based R version by a second reviewer matched to 1e-14.
 - **Bug found:** the code review found one bug, empty 30+ populations in the results files. It was fixed, and a regression test was added.
+
+## D24. Green Book discounting brought up to date after the Budget of 28 October 2026 (implemented)
+
+- **Facts** (primary documents downloaded on 29 October 2026, checked by two agents and re-read directly; see `notes/verified_sources.md`):
+  - The Budget "formalis[es] the reduction in the discount rate from 3.5% to 3.0%". HM Treasury's response to the Discount Rate Review, the revised Green Book and the discounting guidance were all published that day.
+  - New schedule: 3.00% for years 1 to 30, 2.50% for 31 to 75, 2.25% from year 76.
+  - "The Green Book no longer recommends the use of the health discount rate of 1.50%." Future real health effects are uprated by 2% a year instead.
+  - The February 2026 Green Book PDF link now redirects to the October 2026 file, so the old citation no longer shows the 1.5% text.
+- **Choice:**
+  - Base case unchanged. It follows NICE (3.5% for costs and health), which the Budget did not change, and no base-case output moved.
+  - The Green Book scenario and the societal value follow the October 2026 rules. Discount factors are chained year by year; a test checks them against Annex A of the discounting guidance to four decimal places.
+  - ASSUMPTION: uprating starts in model year 1, on the same year convention as discounting.
+  - The flat 3.0% scenario stays, now sourced to HM Treasury's acceptance of the 3% rate.
+- **Effect:**
+  - Green Book scenario: 214.3m to 254.1m a year.
+  - Societal value: 905.9m to 1,074.0m a year (20 years).
+  - Discount rates now move the figure by more than a factor of two (2.18 times the base case).
+- **Not checked:** NICE sets its reference-case rate separately. Whether NICE will follow the Green Book cut was not checked.

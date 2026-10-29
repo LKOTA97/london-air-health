@@ -23,10 +23,11 @@ The answer is framed as a break-even budget, not as the value of one scheme, bec
    - The 95% interval from hazard-ratio uncertainty is £10.47 to £15.04 per resident.
    - Across boroughs the figure runs from £10.52 per resident (Tower Hamlets) to £14.39 (Richmond upon Thames). Boroughs differ by age structure, not by how polluted they are, because the relationship is linear with no threshold.
 
-3. **The annual figure depends most on how the spending is framed.**
+3. **The annual figure depends most on how the spending is framed and discounted.**
    - If the spending buys a cut that then lasts, London's break-even is £198.8m a year when spread over 10 years but £89.9m a year over 30 years, a difference of more than a factor of two.
    - If the cut lasts only while it is paid for, the break-even barely moves: £64.1m to £70.5m a year.
-   - Among uncertain inputs, the Green Book's 1.5% health discount rate raises the base figure to £214.3m. The hazard ratio's 95% interval spans £88.1m to £130.3m.
+   - The Green Book's discounting rules, revised in the Budget of 28 October 2026, raise the figure to £254.1m a year, 2.18 times the base case. They discount at 3% a year and uprate health values by 2% a year, in place of the old, lower health discount rate. The base case keeps NICE's 3.5%.
+   - The hazard ratio's 95% interval spans £88.1m to £130.3m.
 
 ## How the model works
 
@@ -87,7 +88,7 @@ quarto render          # builds the dashboard into docs/
 - **COMEAP** (2022) statement on PM2.5 and mortality.
 - **EQ-5D-5L norms:** Hernández Alava and Wailoo (2026), EEPRU Report 082.
 - **NICE:** PMG20, PMG36 and PMG51.
-- **HM Treasury:** Green Book (2026).
+- **HM Treasury:** Green Book (2026, updated 28 October 2026), its discounting guidance and the response to the Discount Rate Review (October 2026).
 - **Defra:** air quality appraisal guidance (2026).
 
 Contains public sector information licensed under the Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2026. Data from OHID Fingertips and the Office for National Statistics. Code is MIT licensed (see `LICENSE`); data keeps its original licence.

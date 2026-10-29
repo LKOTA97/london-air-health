@@ -50,6 +50,8 @@ base_settings <- function(params) {
     lag              = TRUE,
     r_health         = param_num(params, "discount_rate_health"),
     r_cost           = param_num(params, "discount_rate_costs"),
+    # Real growth a year in the value of health effects (0 except in the Green Book view)
+    uprate_health    = 0,
     cohort           = "closed",
     open_entry_years = param_num(params, "open_cohort_entry_years"),
     mortality        = "england",
@@ -177,7 +179,7 @@ cohort_gains <- function(entry_age, entry_year, mx_by_age, u_by_age, settings, p
 
   ly_gain  <- life_years(mx_cut) - life_years(mx_base)
   utility  <- matrix(u_by_age[as.character(age_used)], n, n_years)
-  discount <- (1 + settings$r_health)^(-year)
+  discount <- discount_factor(year, settings$r_health, settings$uprate_health)
 
   out <- tibble(
     entry_age   = entry_age,
@@ -272,10 +274,50 @@ borough_gains <- function(inputs, settings, params) {
     relocate(area_name, is_city_of_london, .after = area_code)
 }
 
+# Discounting -------------------------------------------------------------------------
+
+# Discount factors for model years t = 1, 2, ... (any shape; the result keeps it).
+# `rate` is one annual rate, or a schedule with columns from_year and rate (the
+# Green Book's declining rate), where each year's factor is the previous year's
+# divided by (1 + that year's rate). `uprate` grows values by a fixed real rate a
+# year: the Green Book uprates future health effects instead of discounting them
+# at a lower rate.
+discount_factor <- function(t, rate, uprate = 0) {
+  if (is.numeric(rate)) {
+    factor <- (1 + rate)^(-t)
+  } else {
+    yearly <- rate$rate[findInterval(seq_len(max(t)), rate$from_year)]
+    factor <- t
+    factor[] <- cumprod(1 / (1 + yearly))[t]
+  }
+  factor * (1 + uprate)^t
+}
+
+# The Green Book (October 2026) schedule: 3% for years 1 to 30, 2.5% for 31 to 75,
+# 2.25% from year 76 (para 6.54)
+green_book_schedule <- function(params) {
+  tibble(
+    from_year = c(1, 31, 76),
+    rate = c(
+      param_num(params, "green_book_rate_years1_30"),
+      param_num(params, "green_book_rate_years31_75"),
+      param_num(params, "green_book_rate_years76_plus")
+    )
+  )
+}
+
+# Green Book conventions: the schedule for spending and health, health uprated 2% a year
+green_book_settings <- function(settings, params) {
+  settings$r_health      <- green_book_schedule(params)
+  settings$r_cost        <- green_book_schedule(params)
+  settings$uprate_health <- param_num(params, "green_book_health_uprating")
+  settings
+}
+
 # Break-even spend -----------------------------------------------------------------
 
 # Present value of an equal spend of 1 a year in years 1 to h
-annuity_factor <- function(h, r) sum((1 + r)^(-seq_len(h)))
+annuity_factor <- function(h, r) sum(discount_factor(seq_len(h), r))
 
 # Highest present value of spending that stays cost-effective
 breakeven_pv <- function(health_gain_disc, threshold) health_gain_disc * threshold

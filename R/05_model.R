@@ -12,8 +12,9 @@ inputs   <- load_model_inputs(params)
 dir.create(paths$outputs, showWarnings = FALSE)
 
 # Thresholds and horizons, all from model/parameters.csv. The NICE thresholds
-# use NICE discounting (3.5% for health). The societal value is a Green Book
-# cost-benefit value, so it uses the Green Book health discount rate (1.5%).
+# use NICE discounting (3.5% for costs and health). The societal value is a
+# Green Book cost-benefit value, so it uses Green Book discounting (October 2026):
+# the declining rate for spending and health, with health uprated 2% a year.
 thresholds <- tibble(
   threshold_name = c("nice_guidelines", "nice_previous_upper", "ta_low", "ta_high", "societal"),
   threshold_label = c(
@@ -29,7 +30,7 @@ thresholds <- tibble(
   ),
   health_discount = c(rep("nice", 4), "green_book")
 )
-green_book_health_rate <- param_num(params, "discount_rate_health_scenario")
+settings_green_book <- green_book_settings(settings, params)
 horizons <- c(
   param_bound(params, "horizon_years", "low"),
   settings$horizon,
@@ -76,8 +77,8 @@ write_csv(results_london,  file.path(paths$outputs, "results_london.csv"))
 
 # Break-even spend at every threshold and horizon ----------------------------------
 
-# QALYs discounted at the Green Book health rate, for the societal value
-green_book <- borough_gains(inputs, modifyList(settings, list(r_health = green_book_health_rate)), params) |>
+# QALYs with Green Book discounting and uprating, for the societal value
+green_book <- borough_gains(inputs, settings_green_book, params) |>
   select(area_code, qaly_gained_disc_green_book = qaly_gained_disc)
 green_book <- bind_rows(
   green_book,
@@ -92,7 +93,9 @@ breakeven <- bind_rows(results_borough, results_london) |>
   mutate(
     health_gain_disc    = ifelse(health_discount == "green_book", qaly_gained_disc_green_book, qaly_gained_disc),
     pv                  = breakeven_pv(health_gain_disc, threshold),
-    annuity_factor      = map_dbl(horizon, \(h) annuity_factor(h, settings$r_cost)),
+    annuity_factor      = map2_dbl(horizon, health_discount, \(h, d) {
+      annuity_factor(h, if (d == "green_book") settings_green_book$r_cost else settings$r_cost)
+    }),
     annual              = pv / annuity_factor,
     annual_per_resident = annual / population
   )
@@ -150,7 +153,7 @@ by_year <- map(c("Female", "Male"), \(s) {
   summarise(across(c(ly, qaly), sum), .groups = "drop") |>
   mutate(
     lag_share = lag_share(year, params, settings$lag),
-    qaly_disc = qaly * (1 + settings$r_health)^(-year)
+    qaly_disc = qaly * discount_factor(year, settings$r_health)
   )
 write_csv(by_year, file.path(paths$outputs, "london_gains_by_year.csv"))
 

@@ -51,7 +51,7 @@ The chain from QALYs to the headline: 82,670 QALYs x £20,000 = £1,653.4m. Divi
 - Scripts 01 to 03 download the data again from the internet.
 - The dashboard is built separately with `quarto render`.
 
-On 27 October 2026 the suite ran 110 checks in 29 tests (data 37, model 41, SQL 32), all passing.
+On 29 October 2026 the suite ran 117 checks in 30 tests (data 37, model 48, SQL 32), all passing.
 
 ## Environment
 
@@ -273,7 +273,7 @@ Reads the parameters, settings and inputs, runs `borough_gains()` once for the b
 
 Points to know:
 - **Values per QALY.** £20,000 (NICE guidelines, PMG20 Box 7.2) is the base. Also £30,000 (NICE's previous upper bound), £25,000 and £35,000 (technology appraisals only) and £84,548, the societal value from Defra's air quality guidance (D13, D15).
-- **The societal value uses Green Book conventions:** QALYs discounted at 1.5% (152,277 for London), spending at 3.5%. That gives £905.9m a year over 20 years. It is a cost-benefit value, not the NHS's opportunity cost, so it is labelled separately.
+- **The societal value uses Green Book conventions** as revised on 28 October 2026: spending and health discounted at 3% for the first 30 years (2.5% then 2.25% after that), with health values uprated by 2% a year (188,995 QALYs for London). That gives £1,074.0m a year over 20 years. It is a cost-benefit value, not the NHS's opportunity cost, so it is labelled separately.
 - **"Per resident" divides by all residents** (9,122,909). "Days per person" and "per 100,000" use residents aged 30 and over (5,551,776), the people who gain.
 - **The bug the code review found.** Inside `summarise()`, once `population = sum(population)` has run, later lines see the sum rather than the column. So `sum(population[age >= 30])` written after it came out missing. The 30+ total is now computed first, with a comment saying why, and a test guards it.
 - **Shape over time.** Undiscounted life-years gained peak in year 39 of the cut. Only 30% of the discounted QALYs fall in the first 20 years, which is why the spending horizon matters so much.
@@ -292,8 +292,8 @@ Eleven scenarios across seven inputs, each changing one thing from the base case
 | Hazard ratio | HR 1.06 / 1.09 (95% limits) | 88.1 / 130.3 |
 | Cessation lag | No lag | 130.9 |
 | Discount rates | 1.5% both (NICE PMG20) | 177.4 |
-| | 1.5% health, 3.5% costs (Green Book) | 214.3 |
-| | 3.0% both (Discount Rate Review) | 128.4 |
+| | Green Book (October 2026): 3% falling after year 30, health uprated 2% a year | 254.1 |
+| | 3.0% both, no health uprating | 128.4 |
 | Cohort | Open cohort | 144.7 |
 | Health outcome | Life-years, not QALYs | 143.5 |
 | Baseline mortality | Borough SMR | 114.9 |
@@ -305,7 +305,7 @@ For each input, the lowest and highest result, with the base case always counted
 
 ### The factor-of-two rule
 
-Any input whose high result is more than twice its low is flagged. Only the horizon crosses it (198.8 / 89.9 = 2.21). For flagged inputs the script writes every borough's result at each value and at the base case (`outputs/factor_of_two.csv`), so no single number hides the spread. That is why the dashboard's borough table shows 10, 20 and 30 years side by side (D22).
+Any input whose high result is more than twice its low is flagged. Two inputs cross it: the horizon (198.8 / 89.9 = 2.21) and, since the Budget update, discount rates (254.1 / 116.3 = 2.18). For flagged inputs the script writes every borough's result at each value and at the base case (`outputs/factor_of_two.csv`), so no single number hides the spread. That is why the dashboard's borough table shows 10, 20 and 30 years side by side (D22).
 
 ### Comparisons, kept out of the tornado
 
@@ -344,6 +344,7 @@ For each annual scheme cost per resident (£0 to £29 in 10p steps), the share o
 | Every borough gains | catches a broken join |
 | London total equals the sum of boroughs in the saved files | outputs are consistent |
 | No lag, open cohort, 1.5% discounting and HR 1.09 raise the gain; HR 1.06 lowers it | scenarios move the right way |
+| Green Book discount factors equal Annex A of the October 2026 discounting guidance (years 1 to 125) | the declining rate is applied correctly |
 | Annuity factor equals the closed form `(1 - 1.035^-20) / 0.035`; annual = PV / annuity; annual falls as the horizon lengthens | the break-even formula |
 | Saved results have no missing values; 30+ populations add up and are below the totals | the regression test for the code review's bug |
 | A cut that ends fades on the same lag (70% in year 21, zero by year 40), gains less than a permanent cut, and `cut_years = Inf` equals the base | the temporary-cut logic |
@@ -402,7 +403,8 @@ Every plotly chart goes through `plotly_defaults()`, which calls `partial_bundle
 These checks do not replace Lassi reading the code and re-checking the key sources in person (see the last section).
 
 What the methods review changed:
-- **D14:** corrected a citation. PMG20's 1.5% applies to costs and health; the Green Book's 1.5% is for health only. There are now three discount scenarios, each with its own source.
+- **D14:** corrected a citation. PMG20's 1.5% applies to costs and health; the Green Book's 1.5% was for health only. There are three discount scenarios, each with its own source.
+- **D24:** the Budget of 28 October 2026 removed the Green Book's 1.5% health rate. The Green Book scenario and the societal value now use the new rules (3% falling after year 30, health uprated 2% a year). The base case did not change.
 - **D17:** the horizon had become the biggest driver of the annual figure, so the "cut lasts only while it is paid for" view was added. On that view the annual figure barely depends on the horizon.
 - **D18:** the open-cohort scenario was added, and the notes say plainly that the base case counts fewer people than COMEAP's method.
 - **D19:** the lag runs in calendar time for everyone. Restarting it at age 30 for entrants would change the open-cohort total by under 0.5%.
@@ -414,7 +416,7 @@ What the methods review changed:
 
 - Read `R/model_functions.R` alongside the "model in one block" above, then `sql/01` to `03` alongside their CTE tables.
 - Run `Rscript R/run_all.R` and `quarto render` once yourself, and open `outputs/results_london.csv` and `outputs/tornado.csv`.
-- Re-check the key sources in the original documents: COMEAP 2022 for the hazard ratio (p.8, para 31) and the lag (p.11, para 40); NICE PMG20 Box 7.2 for £20,000 per QALY and section 7.7 for discounting; NICE PMG51 for EQ-5D-5L; Green Book 2026 para 6.58 for the 1.5% health rate; Defra's air quality appraisal guidance (section 5.3) for £84,548.
-- Re-check the discount rates after the Budget on 28 October 2026. The cut in the standard rate from 3.5% to 3% was announced on 7 September 2026, and further changes are expected at the Budget (D14, `notes/verified_sources.md`).
+- Re-check the key sources in the original documents: COMEAP 2022 for the hazard ratio (p.8, para 31) and the lag (p.11, para 40); NICE PMG20 Box 7.2 for £20,000 per QALY and section 7.7 for discounting; NICE PMG51 for EQ-5D-5L; the Green Book (updated 28 October 2026) paras 6.54 and 8.58 for the new discount schedule and 2% health uprating; Defra's air quality appraisal guidance (section 5.3) for £84,548.
+- Watch for NICE's response to the Green Book changes of 28 October 2026. NICE sets its own reference-case rate (3.5%), which the base case uses (D14, D24).
 - Be ready to say plainly that an AI coding assistant wrote the code and AI agents checked the sources, and what you decided yourself.
 - Rehearse the likely questions in `notes/interview_prep.md`.

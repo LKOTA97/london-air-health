@@ -102,11 +102,24 @@ test_that("a cut that ends fades on the same lag and gains less than a permanent
   expect_equal(london(borough_gains(inputs, with_settings(cut_years = Inf), params)), london(base))
 })
 
+test_that("Green Book discount factors match Annex A of the October 2026 discounting guidance", {
+  gb <- green_book_schedule(params)
+  expect_equal(round(discount_factor(c(1, 30, 31, 74, 75, 76, 92, 125), gb), 4),
+               c(0.9709, 0.4120, 0.4019, 0.1390, 0.1356, 0.1326, 0.0929, 0.0446))
+  expect_equal(discount_factor(1:10, 0.03, uprate = 0.02), (1.02 / 1.03)^(1:10))
+  expect_equal(dim(discount_factor(matrix(1:6, 2), gb)), c(2L, 3L))
+  expect_equal(annuity_factor(20, gb), annuity_factor(20, 0.03))
+})
+
 test_that("the societal value uses Green Book discounting and the NICE thresholds do not", {
   b <- readr::read_csv(here::here("outputs", "breakeven.csv"), show_col_types = FALSE)
   london_rows <- b[b$area_code == "LONDON" & b$horizon == 20, ]
-  nice <- london_rows$health_gain_disc[london_rows$threshold_name == "nice_guidelines"]
-  societal <- london_rows$health_gain_disc[london_rows$threshold_name == "societal"]
-  expect_equal(nice, london(base))
-  expect_gt(societal, nice)
+  nice <- london_rows[london_rows$threshold_name == "nice_guidelines", ]
+  societal <- london_rows[london_rows$threshold_name == "societal", ]
+  expect_equal(nice$health_gain_disc, london(base))
+  expect_equal(nice$annuity_factor, annuity_factor(20, settings$r_cost))
+  gb <- borough_gains(inputs, green_book_settings(settings, params), params)
+  expect_equal(societal$health_gain_disc, london(gb))
+  expect_equal(societal$annuity_factor, annuity_factor(20, green_book_schedule(params)))
+  expect_gt(societal$health_gain_disc, nice$health_gain_disc)
 })

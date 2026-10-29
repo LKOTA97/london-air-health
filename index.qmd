@@ -149,9 +149,11 @@ temp_20k <- london_temporary |> filter(threshold == base_threshold)
 comparison_3l <- comparisons |> filter(grepl("EQ-5D-3L", comparison))
 top_input <- tornado |> slice_max(high_value - low_value, n = 1)
 tornado_title <- sprintf(
-  "%s moves London's break-even spend most: from %s to %s a year",
-  top_input$input, fmt_gbp_m(top_input$low_value), fmt_gbp_m(top_input$high_value)
+  "Largest effect on London's break-even spend: %s, from %s to %s a year",
+  tolower(top_input$input), fmt_gbp_m(top_input$low_value), fmt_gbp_m(top_input$high_value)
 )
+doubling <- tornado |> filter(more_than_double)
+doubling_text <- paste0(tolower(doubling$input), " (", sprintf("%.2f", doubling$max_ratio), " times)", collapse = " and ")
 accept_20k <- acceptability |> filter(threshold == base_threshold)
 cost_95 <- max(accept_20k$annual_cost_per_resident[accept_20k$prob_cost_effective >= 0.95])
 cost_50 <- max(accept_20k$annual_cost_per_resident[accept_20k$prob_cost_effective >= 0.50])
@@ -508,8 +510,9 @@ tags$div(
     format(param_n("threshold_ta_low"), big.mark = ","), " to £", format(param_n("threshold_ta_high"), big.mark = ","),
     " has applied to NICE technology appraisals of medicines since spring 2026 and is shown for comparison only. ",
     "The societal value (£", format(param_n("value_qaly_societal"), big.mark = ","), " per QALY) comes from Defra's air quality appraisal guidance ",
-    "and is a cost-benefit value, not the NHS's opportunity cost, so it uses Green Book discounting (",
-    pct(param("discount_rate_health_scenario")), " for health)."
+    "and is a cost-benefit value, not the NHS's opportunity cost, so it uses Green Book discounting as revised on 28 October 2026: ",
+    pct(param("green_book_rate_years1_30")), " a year for spending and health, falling after year 30, with health values uprated by ",
+    pct(param("green_book_health_uprating")), " a year."
   ))
 )
 ```
@@ -521,7 +524,7 @@ tags$div(
 ```{r}
 #| title: !expr tornado_title
 chart_card(
-  tornado_chart(tornado, tornado$base_value[1], x_title = "London break-even spend (£ million a year)"),
+  tornado_chart(tornado, tornado$base_value[1], x_title = "£ million a year"),
   alt = paste0(
     "Tornado diagram of London's break-even annual spend at £", format(base_threshold, big.mark = ","),
     " per QALY. The base case is ", fmt_gbp_m(tornado$base_value[1]), ". ",
@@ -530,7 +533,9 @@ chart_card(
   source = paste0(
     "One input changed at a time from the base case. Not uncertainties, so not shown: EQ-5D-3L norms (the pre-2026 NICE method) give ",
     fmt_gbp_m(comparison_3l$annual_breakeven), " a year; a cut that lasts only while it is paid for gives ", fmt_gbp_m(temp_20k$h20),
-    ". Source: outputs/tornado.csv and outputs/comparisons.csv from R/06_sensitivity.R."
+    ". Inputs that move the figure by more than a factor of two: ", doubling_text,
+    "; every borough's result across their values is in outputs/factor_of_two.csv.",
+    " Source: outputs/tornado.csv and outputs/comparisons.csv from R/06_sensitivity.R."
   )
 )
 ```
@@ -624,7 +629,7 @@ reactable(
 - COMEAP (2022) Statement on quantifying mortality associated with long-term exposure to PM2.5. <https://www.gov.uk/government/publications/particulate-air-pollution-quantifying-effects-on-mortality>
 - Hernández Alava M, Wailoo A (2026) EQ-5D-5L age adjustment estimates using the Health Survey for England, EEPRU Report 082, doi:10.15131/shef.data.31889488. EQ-5D-3L scenario: Hernández Alava M, Pudney S, Wailoo A (2022), NICE Decision Support Unit.
 - NICE PMG20 (guidelines manual) and PMG36 (technology appraisal manual); NICE news on cost-effectiveness thresholds, 1 December 2025 and 2 April 2026.
-- HM Treasury, The Green Book (2026) and the Green Book Discount Rate Review (2026); Defra, Air quality appraisal: impact pathways approach (2026).
+- HM Treasury, The Green Book (2026, updated 28 October 2026), Green Book supplementary guidance: discounting (October 2026) and the HM Treasury response to the Green Book Discount Rate Review (October 2026); Defra, Air quality appraisal: impact pathways approach (2026).
 - WHO global air quality guidelines (2021); Environmental Targets (Fine Particulate Matter) (England) Regulations 2023; Environmental Improvement Plan 2025.
 - ONS Open Geography Portal, Local Authority Districts (May 2026) Boundaries UK BUC.
 

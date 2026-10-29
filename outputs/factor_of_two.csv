@@ -1,4 +1,103 @@
 input,scenario,area_code,area_name,is_city_of_london,health_gain_disc,annual_breakeven
+Discount rates,1.5% for costs and health (NICE PMG20),E09000001,City of London,TRUE,271.67841963296763,316482.18945468473
+Discount rates,1.5% for costs and health (NICE PMG20),E09000002,Barking and Dagenham,FALSE,3660.104088156035,4263709.11983581
+Discount rates,1.5% for costs and health (NICE PMG20),E09000003,Barnet,FALSE,6948.8559797764165,8094824.60055525
+Discount rates,1.5% for costs and health (NICE PMG20),E09000004,Bexley,FALSE,4428.695347490297,5159052.389567946
+Discount rates,1.5% for costs and health (NICE PMG20),E09000005,Brent,FALSE,5705.7274047491655,6646685.8277744725
+Discount rates,1.5% for costs and health (NICE PMG20),E09000006,Bromley,FALSE,6049.097142098074,7046682.288352661
+Discount rates,1.5% for costs and health (NICE PMG20),E09000007,Camden,FALSE,3396.758022677933,3956933.4123674617
+Discount rates,1.5% for costs and health (NICE PMG20),E09000008,Croydon,FALSE,7043.127822313564,8204643.257371608
+Discount rates,1.5% for costs and health (NICE PMG20),E09000009,Ealing,FALSE,6513.742368558685,7587954.351067786
+Discount rates,1.5% for costs and health (NICE PMG20),E09000010,Enfield,FALSE,5504.47613664423,6412245.263645643
+Discount rates,1.5% for costs and health (NICE PMG20),E09000011,Greenwich,FALSE,5095.97198874355,5936372.769600706
+Discount rates,1.5% for costs and health (NICE PMG20),E09000012,Hackney,FALSE,4290.672563498632,4998267.617147206
+Discount rates,1.5% for costs and health (NICE PMG20),E09000013,Hammersmith and Fulham,FALSE,3073.0094303204255,3579793.9123637495
+Discount rates,1.5% for costs and health (NICE PMG20),E09000014,Haringey,FALSE,4639.306154454169,5404396.018262464
+Discount rates,1.5% for costs and health (NICE PMG20),E09000015,Harrow,FALSE,4603.597501409219,5362798.482788682
+Discount rates,1.5% for costs and health (NICE PMG20),E09000016,Havering,FALSE,4793.907801506094,5584493.752261342
+Discount rates,1.5% for costs and health (NICE PMG20),E09000017,Hillingdon,FALSE,5413.563491380647,6306339.785172209
+Discount rates,1.5% for costs and health (NICE PMG20),E09000018,Hounslow,FALSE,5100.151813012195,5941241.908407768
+Discount rates,1.5% for costs and health (NICE PMG20),E09000019,Islington,FALSE,3600.547592773751,4194330.881842903
+Discount rates,1.5% for costs and health (NICE PMG20),E09000020,Kensington and Chelsea,FALSE,2544.4094479300725,2964020.0132126296
+Discount rates,1.5% for costs and health (NICE PMG20),E09000021,Kingston upon Thames,FALSE,2985.681318330668,3478064.109456325
+Discount rates,1.5% for costs and health (NICE PMG20),E09000022,Lambeth,FALSE,5136.604603370304,5983706.300389484
+Discount rates,1.5% for costs and health (NICE PMG20),E09000023,Lewisham,FALSE,5258.063984647547,6125196.121216491
+Discount rates,1.5% for costs and health (NICE PMG20),E09000024,Merton,FALSE,3848.947162548624,4483695.196491669
+Discount rates,1.5% for costs and health (NICE PMG20),E09000025,Newham,FALSE,5693.455680851234,6632390.315996807
+Discount rates,1.5% for costs and health (NICE PMG20),E09000026,Redbridge,FALSE,5204.874360763373,6063234.745536095
+Discount rates,1.5% for costs and health (NICE PMG20),E09000027,Richmond upon Thames,FALSE,3553.4821495679084,4139503.6543672592
+Discount rates,1.5% for costs and health (NICE PMG20),E09000028,Southwark,FALSE,5148.529414079319,5997597.68788769
+Discount rates,1.5% for costs and health (NICE PMG20),E09000029,Sutton,FALSE,3772.770596657498,4394955.993757301
+Discount rates,1.5% for costs and health (NICE PMG20),E09000030,Tower Hamlets,FALSE,4910.753237070988,5720608.719822338
+Discount rates,1.5% for costs and health (NICE PMG20),E09000031,Waltham Forest,FALSE,4981.55228570481,5803083.57356012
+Discount rates,1.5% for costs and health (NICE PMG20),E09000032,Wandsworth,FALSE,5520.511969902408,6430925.6418153
+Discount rates,1.5% for costs and health (NICE PMG20),E09000033,Westminster,FALSE,3584.0861714677053,4175154.7298926977
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000001,City of London,TRUE,346.3974534813266,465666.99890994915
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000002,Barking and Dagenham,FALSE,4575.915568354807,6151468.056609043
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000003,Barnet,FALSE,8551.604377480087,11496042.78641444
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000004,Bexley,FALSE,5426.4089490755505,7294798.344440836
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000005,Brent,FALSE,7060.22187524315,9491156.182705838
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000006,Bromley,FALSE,7387.693489227347,9931380.907742506
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000007,Camden,FALSE,4210.812108955142,5660654.309216851
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000008,Croydon,FALSE,8692.731529516328,11685762.01411935
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000009,Ealing,FALSE,8060.840706512493,10836302.23827606
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000010,Enfield,FALSE,6745.179341013712,9067640.045479052
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000011,Greenwich,FALSE,6359.723075759397,8549465.733144823
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000012,Hackney,FALSE,5419.201429966818,7285109.174502609
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000013,Hammersmith and Fulham,FALSE,3831.70732628983,5151018.384812801
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000014,Haringey,FALSE,5770.19665284873,7756957.01988511
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000015,Harrow,FALSE,5663.731593692597,7613834.534174691
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000016,Havering,FALSE,5881.258362741052,7906258.8482317
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000017,Hillingdon,FALSE,6691.632004539345,8995655.60325802
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000018,Hounslow,FALSE,6314.251463877219,8488337.601780217
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000019,Islington,FALSE,4530.358395181801,6090224.903990318
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000020,Kensington and Chelsea,FALSE,3117.540282754107,4190953.521340592
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000021,Kingston upon Thames,FALSE,3669.2018815722436,4932560.015712105
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000022,Lambeth,FALSE,6433.956597634194,8649258.907149252
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000023,Lewisham,FALSE,6570.036879734144,8832193.556175819
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000024,Merton,FALSE,4766.866476118093,6408166.064240479
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000025,Newham,FALSE,7170.691858489093,9639662.544547625
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000026,Redbridge,FALSE,6438.253463962799,8655035.245363778
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000027,Richmond upon Thames,FALSE,4323.595154437985,5812270.1533580115
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000028,Southwark,FALSE,6460.758217911107,8685288.704582352
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000029,Sutton,FALSE,4626.9898109709775,6220127.883757434
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000030,Tower Hamlets,FALSE,6266.156030187106,8423682.229627041
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000031,Waltham Forest,FALSE,6229.956388562909,8375018.539096579
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000032,Wandsworth,FALSE,6953.761990048926,9348040.652425636
+Discount rates,"Green Book (October 2026): 3.0% falling after year 30, health uprated 2% a year",E09000033,Westminster,FALSE,4447.08354257683,5978277.341132972
+Discount rates,"3.0% for costs and health, no health uprating",E09000001,City of London,TRUE,163.18252914507835,219368.58327863063
+Discount rates,"3.0% for costs and health, no health uprating",E09000002,Barking and Dagenham,FALSE,2259.44577660633,3037404.9330265885
+Discount rates,"3.0% for costs and health, no health uprating",E09000003,Barnet,FALSE,4422.6234318715515,5945395.268153918
+Discount rates,"3.0% for costs and health, no health uprating",E09000004,Bexley,FALSE,2842.349279286629,3821010.360893468
+Discount rates,"3.0% for costs and health, no health uprating",E09000005,Brent,FALSE,3595.2749728886124,4833179.0261597335
+Discount rates,"3.0% for costs and health, no health uprating",E09000006,Bromley,FALSE,3901.5813961394992,5244951.085765162
+Discount rates,"3.0% for costs and health, no health uprating",E09000007,Camden,FALSE,2137.58552644587,2873586.4741772767
+Discount rates,"3.0% for costs and health, no health uprating",E09000008,Croydon,FALSE,4460.113355917548,5995793.503604001
+Discount rates,"3.0% for costs and health, no health uprating",E09000009,Ealing,FALSE,4102.70253081005,5515321.073356447
+Discount rates,"3.0% for costs and health, no health uprating",E09000010,Enfield,FALSE,3524.7492973502294,4738370.362458555
+Discount rates,"3.0% for costs and health, no health uprating",E09000011,Greenwich,FALSE,3163.252001587895,4252404.431878228
+Discount rates,"3.0% for costs and health, no health uprating",E09000012,Hackney,FALSE,2613.387030574502,3513213.169690395
+Discount rates,"3.0% for costs and health, no health uprating",E09000013,Hammersmith and Fulham,FALSE,1913.2294694433585,2571981.4516759748
+Discount rates,"3.0% for costs and health, no health uprating",E09000014,Haringey,FALSE,2895.092813733626,3891914.240673752
+Discount rates,"3.0% for costs and health, no health uprating",E09000015,Harrow,FALSE,2935.1003457130405,3945696.9320977586
+Discount rates,"3.0% for costs and health, no health uprating",E09000016,Havering,FALSE,3073.6343888178317,4131930.206768605
+Discount rates,"3.0% for costs and health, no health uprating",E09000017,Hillingdon,FALSE,3418.933679028085,4596120.929252113
+Discount rates,"3.0% for costs and health, no health uprating",E09000018,Hounslow,FALSE,3207.255092096441,4311558.409177839
+Discount rates,"3.0% for costs and health, no health uprating",E09000019,Islington,FALSE,2210.2679678884606,2971294.5088058966
+Discount rates,"3.0% for costs and health, no health uprating",E09000020,Kensington and Chelsea,FALSE,1632.5085268311148,2194604.31577719
+Discount rates,"3.0% for costs and health, no health uprating",E09000021,Kingston upon Thames,FALSE,1903.6587040119066,2559115.336261603
+Discount rates,"3.0% for costs and health, no health uprating",E09000022,Lambeth,FALSE,3171.8947885540892,4264023.052709061
+Discount rates,"3.0% for costs and health, no health uprating",E09000023,Lewisham,FALSE,3255.836788037298,4376867.470556241
+Discount rates,"3.0% for costs and health, no health uprating",E09000024,Merton,FALSE,2421.319228852881,3255013.705704555
+Discount rates,"3.0% for costs and health, no health uprating",E09000025,Newham,FALSE,3474.978541151003,4671462.83054732
+Discount rates,"3.0% for costs and health, no health uprating",E09000026,Redbridge,FALSE,3280.7987703781246,4410424.216677422
+Discount rates,"3.0% for costs and health, no health uprating",E09000027,Richmond upon Thames,FALSE,2301.262139564514,3093619.2615338173
+Discount rates,"3.0% for costs and health, no health uprating",E09000028,Southwark,FALSE,3167.8215254762563,4258547.307508967
+Discount rates,"3.0% for costs and health, no health uprating",E09000029,Sutton,FALSE,2411.452074232528,3241749.1501090615
+Discount rates,"3.0% for costs and health, no health uprating",E09000030,Tower Hamlets,FALSE,2933.842794258716,3944006.387880921
+Discount rates,"3.0% for costs and health, no health uprating",E09000031,Waltham Forest,FALSE,3079.5966186058045,4139945.316649678
+Discount rates,"3.0% for costs and health, no health uprating",E09000032,Wandsworth,FALSE,3382.5666777341307,4547232.254749132
+Discount rates,"3.0% for costs and health, no health uprating",E09000033,Westminster,FALSE,2251.922245182758,3027290.9432613365
 Horizon for the annual spend,10 years,E09000001,City of London,TRUE,139.35959975746397,335135.7780057926
 Horizon for the annual spend,10 years,E09000002,Barking and Dagenham,FALSE,1944.8157737374822,4676946.177685474
 Horizon for the annual spend,10 years,E09000003,Barnet,FALSE,3845.9996141013085,9248965.088340001
@@ -65,6 +164,39 @@ Horizon for the annual spend,30 years,E09000030,Tower Hamlets,FALSE,2499.5293149
 Horizon for the annual spend,30 years,E09000031,Waltham Forest,FALSE,2652.780326415443,2884703.976183663
 Horizon for the annual spend,30 years,E09000032,Wandsworth,FALSE,2906.975344328496,3161122.408421774
 Horizon for the annual spend,30 years,E09000033,Westminster,FALSE,1950.6345315270382,2121171.939170955
+Discount rates,Base case,E09000001,City of London,TRUE,139.35959975746397,196109.82997973426
+Discount rates,Base case,E09000002,Barking and Dagenham,FALSE,1944.8157737374822,2736786.639695667
+Discount rates,Base case,E09000003,Barnet,FALSE,3845.9996141013085,5412173.483105421
+Discount rates,Base case,E09000004,Bexley,FALSE,2478.5673466721855,3487893.34782206
+Discount rates,Base case,E09000005,Brent,FALSE,3116.265991908795,4385276.614660556
+Discount rates,Base case,E09000006,Bromley,FALSE,3407.219533710124,4794712.70456009
+Discount rates,Base case,E09000007,Camden,FALSE,1852.5347595394446,2606926.8091835943
+Discount rates,Base case,E09000008,Croydon,FALSE,3872.3235181582413,5449217.047796998
+Discount rates,Base case,E09000009,Ealing,FALSE,3555.504285570372,5003382.200787908
+Discount rates,Base case,E09000010,Enfield,FALSE,3070.4738867505375,4320836.9781186255
+Discount rates,Base case,E09000011,Greenwich,FALSE,2728.6007737405816,3839745.7710277117
+Discount rates,Base case,E09000012,Hackney,FALSE,2241.1048843898748,3153731.0569874174
+Discount rates,Base case,E09000013,Hammersmith and Fulham,FALSE,1652.2683379062078,2325107.587791633
+Discount rates,Base case,E09000014,Haringey,FALSE,2501.3022533813473,3519886.398154425
+Discount rates,Base case,E09000015,Harrow,FALSE,2554.25054229323,3594396.370587602
+Discount rates,Base case,E09000016,Havering,FALSE,2679.851167055855,3771144.2746459837
+Discount rates,Base case,E09000017,Hillingdon,FALSE,2965.8080910033477,4173549.016296134
+Discount rates,Base case,E09000018,Hounslow,FALSE,2777.750624337427,3908910.4992620894
+Discount rates,Base case,E09000019,Islington,FALSE,1900.588211893721,2674548.6621993687
+Discount rates,Base case,E09000020,Kensington and Chelsea,FALSE,1423.3098474352466,2002912.2692285718
+Discount rates,Base case,E09000021,Kingston upon Thames,FALSE,1656.2451401000026,2330703.8294818033
+Discount rates,Base case,E09000022,Lambeth,FALSE,2731.8711549685477,3844347.9219215256
+Discount rates,Base case,E09000023,Lewisham,FALSE,2806.077446523211,3948772.6134787514
+Discount rates,Base case,E09000024,Merton,FALSE,2097.6189708779866,2951814.5894295657
+Discount rates,Base case,E09000025,Newham,FALSE,2980.7038616214227,4194510.665500148
+Discount rates,Base case,E09000026,Redbridge,FALSE,2843.9320250278106,4002042.3915737756
+Discount rates,Base case,E09000027,Richmond upon Thames,FALSE,2011.5149007186367,2830647.087593304
+Discount rates,Base case,E09000028,Southwark,FALSE,2725.030297921356,3834721.320562342
+Discount rates,Base case,E09000029,Sutton,FALSE,2099.3556121774827,2954258.4284659335
+Discount rates,Base case,E09000030,Tower Hamlets,FALSE,2499.529314911956,3517391.4809588967
+Discount rates,Base case,E09000031,Waltham Forest,FALSE,2652.780326415443,3733049.6047083624
+Discount rates,Base case,E09000032,Wandsworth,FALSE,2906.975344328496,4090758.3081732225
+Discount rates,Base case,E09000033,Westminster,FALSE,1950.6345315270382,2744974.920967923
 Horizon for the annual spend,Base case,E09000001,City of London,TRUE,139.35959975746397,196109.82997973426
 Horizon for the annual spend,Base case,E09000002,Barking and Dagenham,FALSE,1944.8157737374822,2736786.639695667
 Horizon for the annual spend,Base case,E09000003,Barnet,FALSE,3845.9996141013085,5412173.483105421
