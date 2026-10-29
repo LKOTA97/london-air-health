@@ -81,7 +81,7 @@ values <- list(
     "- [x] One-way sensitivity analysis and probabilistic analysis",
     "- [x] Dashboard: all six pages, checked at desktop and phone widths",
     "- [x] Notes: walkthrough, decision log, verified sources, interview preparation, SQL practice",
-    "- [ ] Published on GitHub Pages (waiting for Lassi's go-ahead)",
+    "- [x] Published on GitHub Pages: <https://lkota97.github.io/london-air-health/>",
     sep = "\n"
   )
 )
